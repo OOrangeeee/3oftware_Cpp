@@ -12,7 +12,7 @@ endif()
 project ("3oftware")
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (3oftware "3oftware.cpp"  "test.cpp" "findShortestPath.cpp" "tools.h" "classes.h"  "findBijectiveMapping.cpp" "Solve.cpp" "Berth.cpp" "Good.cpp")
+add_executable (3oftware "3oftware.cpp"  "test.cpp" "findShortestPath.cpp" "tools.h" "classes.h"  "findBijectiveMapping.cpp" "Solve.cpp" "Berth.cpp" "Good.cpp" "manhadun.cpp" "Robot.cpp" "Boat.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET 3oftware PROPERTY CXX_STANDARD 20)

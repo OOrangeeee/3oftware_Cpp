@@ -1,5 +1,6 @@
 #include"classes.h"
 #include"tools.h"
+
 Solver::Solver()
 {
 	n = 200;
@@ -7,9 +8,9 @@ Solver::Solver()
 	berth_num = 10;
 	boat_num = 5;
 	N = 201;
-	robots = vector<Robot>(robot_num);
-	berths = vector<Berth>(berth_num);
-	boats = vector<Boat>(boat_num);
+	robots.reserve(robot_num);
+	berths.reserve(berth_num);
+	boats.reserve(boat_num);
 	money = 0;
 	boat_capacity = 0;
 	id = 0;
@@ -17,9 +18,25 @@ Solver::Solver()
 	if_getMatch = false;
 }
 
+void Solver::success()
+{
+
+}
+
 //初始化程序
 void Solver::init()
 {
+	//初始化机器人
+	for (int i = 0; i < robot_num; i++)
+	{
+		robots[i] = Robot(i, make_pair(-1, -1), false, 1, make_pair(-1, -1), -1, make_pair(-1, -1));
+	}
+
+	//初始化船
+	for (int i = 0; i < boat_num; i++)
+	{
+		boats[i] = Boat(-1, -1);
+	}
 
 	//读取地图
 	char ch;
@@ -46,7 +63,7 @@ void Solver::init()
 		int time = 0;
 		int speed = 0;
 		scanf("%d%d", &time, &speed);
-		berths.push_back(Berth(id, pos, time, speed));
+		berths[id] = Berth(id, pos, time, speed);
 	}
 
 	//读取容量
@@ -60,6 +77,101 @@ void Solver::init()
 	getMatch();
 	printf("OK\n");
 	fflush(stdout);
+}
+
+//每一帧的输入
+void Solver::everyInput()
+{
+	//读取帧数，钱数
+	scanf("%d %d", &id, &money);
+
+	//读取新货物数
+	scanf("%d", &new_num);
+
+	//读取新货物信息
+	for (int i = 0; i < new_num; i++)
+	{
+		int x, y, val;
+		scanf("%d %d", &x, &y, &val);
+		int die_time = id + 1000;
+		pair<int, int> pos = make_pair(x, y);
+		getGood(pos, die_time, val);
+	}
+
+	//读取机器人信息
+	for (int i = 0; i < robot_num; i++)
+	{
+		int if_has_int;
+		int x;
+		int y;
+		int status;
+		scanf("%d %d %d %d", &if_has_int, &x, &y, &status);
+		pair<int, int> now_pos = make_pair(x, y);
+		robots[i].if_has = if_has_int == 1 ? true : false;
+		robots[i].pos = now_pos;
+		robots[i].status = status;
+		if (!if_getMatch)
+		{
+			A_roubt.push_back(make_pair(now_pos, i));
+		}
+	}
+
+	//把能对应的港口和机器人对应起来
+	if (!if_getMatch)
+	{
+		get_match();
+		//把能对应的机器人和港口保存起来
+		for (int i = 0; i < robot_num; i++)
+		{
+			for (int j = 0; j < match_rb.size(); j++)
+			{
+				if (i == match_rb[j].first)
+				{
+					robots[i].berth_id = match_rb[j].second;
+					robots[i].berth_pos = berths[match_rb[j].second].pos;
+				}
+			}
+			for (int j = 0; j < match_br.size(); j++)
+			{
+				if (i == match_br[j].first)
+				{
+					berths[i].RobotId = match_br[j].second;
+				}
+			}
+		}
+	}
+
+	//读取船信息
+	for (int i = 0; i < boat_num; i++)
+	{
+		int status, goal;
+		scanf("%d %d", &status, &goal);
+		boats[i].goal = goal;
+		boats[i].status = status;
+	}
+
+	char ok[5];
+	scanf("%s", ok);
+}
+
+void Solver::get_match()
+{
+	for (int i = 0; i < match_tmp.size(); i++)
+	{
+		int index = match_tmp[i].second;
+		pair<int, int> tmp_pos = A_positions[index];
+		for (int j = 0; j < A_roubt.size(); i++)
+		{
+			if (A_roubt[j].first.first == tmp_pos.first && A_roubt[j].first.second == tmp_pos.second)
+			{
+				int roubtId = A_roubt[j].second;
+				match_br.push_back(make_pair(match_tmp[i].first, roubtId));
+				match_rb.push_back(make_pair(roubtId, match_tmp[i].first));
+				break;
+			}
+		}
+	}
+	if_getMatch = true;
 }
 
 //找到所有A的位置，并更新地图
@@ -86,48 +198,25 @@ void Solver::getMatch()
 		B.push_back(berths[i].pos);
 	}
 
-	match_tmp = findBijectiveMapping(ground, B, A_positions);
+	match_tmp = findBijectiveMapping(ground, B, A_positions);//港口id 机器人位置索引
 }
 
-//每一帧的输入
-void Solver::everyInput()
-{
-	//读取帧数，钱数
-	scanf("%d %d", &id, &money);
 
-	//读取新货物数
-	scanf("%d", &new_num);
-
-	//读取新货物信息
-	for (int i = 0; i < new_num; i++)
-	{
-		int x, y, val;
-		scanf("%d %d", &x, &y, &val);
-		int die_time = id + 1000;
-		pair<int, int> pos = make_pair(x, y);
-		getGood(pos, die_time, val);
-	}
-}
 
 //读入新货物
 void Solver::getGood(pair<int, int> pos, int die_time, int val)
 {
 	int min_dist = 1e7;
-	vector<int> to_berth_path;
 	int berthId = -1;
 	for (int i = 0; i < berth_num; i++)
 	{
-		vector<int> tmp_path_g_to_b = findShortestPath(ground, pos, berths[i].pos);
-		int tmp_dist = tmp_path_g_to_b.size();
-		if (tmp_dist > 0)
+		int dist = manhattanDistance(pos, berths[i].pos);
+		if (dist < min_dist)
 		{
-			if (tmp_dist < min_dist)
-			{
-				min_dist = tmp_dist;
-				to_berth_path = tmp_path_g_to_b;
-				berthId = i;
-			}
+			min_dist = dist;
+			berthId = i;
 		}
+
 	}
 	if (berthId == -1)
 		return;

@@ -1,9 +1,11 @@
 #include <vector>
 #include <queue>
 #include <utility>
+#include <cstdlib> 
 using namespace std;
 vector<int> findShortestPath(vector<vector<char>>& map, pair<int, int> start, pair<int, int> end);
 vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pair<int, int>>& groupA, vector<pair<int, int>>& groupB);
+int manhattanDistance(const pair<int, int>& a, const pair<int, int>& b);
 
 template <typename T>
 class SortedList

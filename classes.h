@@ -4,7 +4,24 @@
 
 class Robot
 {
+public:
+	//不变
+	int ID;
+	int berth_id;
+	pair<int, int> berth_pos;
 
+	//每帧改变
+	pair<int, int> pos;//位置
+	bool if_has;
+	int status;
+
+	//跟随任务改变
+	pair<int, int> goal_pos;
+	vector<int> path;
+	vector<int> go_path;
+	vector<int> back_path;
+
+	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos);
 };
 
 class Berth
@@ -22,7 +39,11 @@ public:
 
 class Boat
 {
+public:
+	int goal;
+	int status;
 
+	Boat(int status, int goal);
 };
 
 class Good
@@ -48,7 +69,7 @@ public:
 	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price);
 };
 
-class Solver 
+class Solver
 {
 public:
 	//常量
@@ -65,7 +86,7 @@ public:
 	vector<pair<int, int>> match_br;//港口到机器人匹配
 	vector<pair<int, int>> match_rb;//机器人到港口匹配
 	vector<pair<int, int>> match_tmp;//匹配中间值
-	vector<pair<int, int>> A_roubt;//位置到机器人编号匹配
+	vector<pair<pair<int, int>, int>> A_roubt;//位置到机器人编号匹配
 	vector<vector<char>> ground;//地图
 	//对象
 	vector<Robot> robots;
@@ -89,5 +110,9 @@ public:
 	void everyInput();
 
 	void getGood(pair<int, int> pos, int die_time, int val);
+
+	void get_match();
+
+	void success();
 
 };
