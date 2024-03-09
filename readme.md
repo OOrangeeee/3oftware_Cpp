@@ -39,6 +39,7 @@
 ##### 机器人信息：10 * 4 整数
 
 每行依次为
+
 1. 携带货物？(1携带0未携带)
 2. 坐标(x ,y)
 3. 状态(1正常0恢复中)
@@ -63,6 +64,7 @@
 ##### 机器人指令
 
 每行一条指令，格式为“指令(move/get/pull) 机器人编号(0~9) <参数>”
+
 1. move 机器人编号 0/1/2/3(0右1左2上3下)   →移动
 2. get 机器人编号                         →取货
 3. pull 机器人编号                        →放货
@@ -70,6 +72,7 @@
 ##### 船指令
 
 每行一条指令，格式为“指令(ship/go) 船编号(0~4) <参数>”
+
 1. ship 船编号 泊位编号(-1~5)   →前往泊位
 2. go 船编号                   →前往虚拟点
 
@@ -84,5 +87,5 @@
 ### 其他
 
 ```bash
-PreliminaryJudge.exe -m ./maps/map1.txt "python main.py"
+PreliminaryJudge_win_1.exe -m ./maps/map1.txt -l NONE -d log.txt "./out/build/x64-debug/3oftware.exe"
 ```
