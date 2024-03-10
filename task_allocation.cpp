@@ -1,4 +1,9 @@
 
+/*
+    设置一个cur_path存储当前剩余的没走完的路
+    （不同状态不另设变量表示，通过考察现有的各种变量来区分）
+*/
+
 //struct Robo_situation
 {
     int cur_path;//the path remaining for the robot to move
@@ -8,6 +13,12 @@
     */
 }
 
+/*
+    下面的步骤仅供最开始机器人前往各自的港口时执行：
+    1. 判断各机器人到各港口是否有路（只需判断是否有路即可，无需求最短路，不知道有没有比dfs剪枝更好的方法）
+    2. 寻找一种匹配方案，尽量使每个机器人都有一个不同的可达港口
+    3. 根据上述找到的方案，规划最短路（10条单源最短路），存入cur_path中
+*/
 
 void go_to_berth_initially()//runs only once when initialization
 {
@@ -30,6 +41,18 @@ void go_to_berth_initially()//runs only once when initialization
         robot->cur_path = from_path_to_move(target_path) //transform the path into the move order(0/1/2/3)
     */
 }
+
+/*
+    每帧生成机器人指令时，按照如下方案：
+    1. 首先，判断cur_path是否为空（是否走完了之前安排好的道路），如果未走完，按照cur_path下达移动一步的指令即可，结束；否则，进行2
+    //1不成立说明已经走完了之前安排好的路，现在，机器人要么在港口，要么在货物点
+    2. 判断当前机器人是否在港口且手中有货物，若是，则安排放下货物的指令，同时分配一个合法的新货物给它（规划到该货物的最短路，判断是否能在消失前取到）
+        ，并将该最短路存入cur_path中，结束；否则，执行3
+    //若机器人在港口，且之前已经放下的货物，则之前在放下货物时已经规划好了路线存入cur_path中，此时机器人状态属于1成立的情况
+    //1,2都不成立说明机器人在货物点
+    3. 判断当前机器人手中是否有货物，若没有，则下达拿起货物的指令，同时规划到对应港口的最短路存入cur_path中，结束
+    //若机器人在货物点，且之前已经拿起货物，则之前拿起货物时已经规划好了路线存入cur_path中，此时机器人状态属于1成立的情况
+*/
 
 void robot_action_generate()
 {
