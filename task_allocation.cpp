@@ -11,7 +11,7 @@
 
 void go_to_berth_initially()//runs only once when initialization
 {
-    for(each robots)
+    for(each robot and each berth)
     {
         find_path(robo_cur_loc, target_berth);//it has to be reachable, which doesn't need to be a shortest one
     }
