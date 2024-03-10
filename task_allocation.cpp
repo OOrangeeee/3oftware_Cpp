@@ -71,20 +71,23 @@ void robot_action_generate()
             /*
                 pop one good from the waiting-list of the robot's berth
                 robot->goal_pos = target_good_pos
-                creat_path(robot->pos, robot->goal_pos)
+                cur_path = (path_temp = creat_path(robot->pos, robot->goal_pos))
             */
             return;
             //else, it is at its berth and has gained a path planned when he pulled the goods at last frame
         }
         else //it is at the position of its target good
         {
-            if(!robot->it_has) //the robot haven't taken the good yet
-            {
+            //if(!robot->it_has) //the robot haven't taken the good yet
+            //{
                 order_out(get, robot->id);
-                robot->goal_pos = robot->berth_pos
-                creat_path(robot->pos, robot->goal_pos)
+                return_berth(robot);
+                /*
+                    robot->goal_pos = robot->berth_pos
+                    cur_path = reverse_path(path_temp) //creat_path(robot->pos, robot->goal_pos)
+                */
                 return;
-            }
+            //}
             //else, it got its good just now and has gained a path planned when he got the goods at last frame
         }
     }
