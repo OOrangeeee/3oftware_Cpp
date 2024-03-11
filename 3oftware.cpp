@@ -9,8 +9,7 @@ int main()
 	for (int zhen = 1; zhen <= 15000; zhen++)
 	{
 		solve->everyInput();
-		for (int i = 0; i < robot_num; i++)
-			printf("move %d %d\n", i, rand() % 4);
+		solve->action();
 		puts("OK");
 		fflush(stdout);
 	}

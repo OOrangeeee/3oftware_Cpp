@@ -18,11 +18,6 @@ Solver::Solver()
 	if_getMatch = false;
 }
 
-void Solver::success()
-{
-
-}
-
 //初始化程序
 void Solver::init()
 {
@@ -189,6 +184,11 @@ void Solver::action()
 		}
 	}
 
+	//指示船
+	for (int i = 0; i < boat_num; i++)
+	{
+		//TODO:船的调用策略
+	}
 
 }
 

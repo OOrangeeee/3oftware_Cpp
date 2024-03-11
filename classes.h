@@ -142,8 +142,6 @@ public:
 
 	void get_match();
 
-	void success();
-
 	void action();
 
 };
