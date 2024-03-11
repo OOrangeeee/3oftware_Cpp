@@ -159,7 +159,7 @@ public:
 
 	void findAndReplaceA(vector<vector<char>>& ground);
 
-	void getMatch();
+	void getMatchTmp();
 
 	void everyInput();
 

@@ -69,7 +69,7 @@ void Solver::init()
 
 	//存下所有的A的位置
 	findAndReplaceA(ground);
-	getMatch();
+	getMatchTmp();
 	printf("OK\n");
 	fflush(stdout);
 }
@@ -228,7 +228,7 @@ void Solver::findAndReplaceA(vector<vector<char>>& ground)
 }
 
 //给每个港口尽可能匹配一个机器人,此时得到的是港口ID到现有机器人位置的索引的对应
-void Solver::getMatch()
+void Solver::getMatchTmp()
 {
 	vector<pair<int, int>> B;
 	for (int i = 0; i < berth_num; i++)
