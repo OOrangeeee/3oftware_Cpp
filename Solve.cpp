@@ -21,18 +21,6 @@ Solver::Solver()
 //初始化程序
 void Solver::init()
 {
-	//初始化机器人
-	for (int i = 0; i < robot_num; i++)
-	{
-		robots[i] = Robot(i, make_pair(-1, -1), false, 1, make_pair(-1, -1), -1, make_pair(-1, -1));
-	}
-
-	//初始化船
-	for (int i = 0; i < boat_num; i++)
-	{
-		boats[i] = Boat(-1, -1);
-	}
-
 	//读取地图
 	char ch;
 	for (int i = 1; i <= 200; i++)
@@ -45,6 +33,18 @@ void Solver::init()
 			tmp.push_back(ch);
 		}
 		this->ground.push_back(tmp);
+	}
+
+	//初始化机器人
+	for (int i = 0; i < robot_num; i++)
+	{
+		robots[i] = Robot(i, make_pair(-1, -1), false, 1, make_pair(-1, -1), -1, make_pair(-1, -1), ground);
+	}
+
+	//初始化船
+	for (int i = 0; i < boat_num; i++)
+	{
+		boats[i] = Boat(-1, -1);
 	}
 
 	//读取港口
@@ -174,7 +174,7 @@ void Solver::action()
 		{
 			if (robots[i].status == 1)
 			{
-				if (robots[i].if_initPath == false)
+				if (!robots[i].if_initPath)
 				{
 					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
 					robots[i].if_initPath = true;

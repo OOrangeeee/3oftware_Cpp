@@ -54,9 +54,11 @@ public:
 	int ID;
 	int berth_id;
 	pair<int, int> berth_pos;
+	vector<vector<char>> ground;
 
 	//每帧改变
 	pair<int, int> pos;//位置
+	pair<int, int> next_pos;
 
 	//跟随任务改变
 	pair<int, int> goal_pos;
@@ -72,7 +74,7 @@ public:
 	bool if_inBerth;
 
 	//构造函数
-	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos);
+	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos, vector<vector<char>> ground);
 	Robot();
 
 	//获取回来的路径
@@ -95,6 +97,9 @@ public:
 
 	//获取任务函数
 	void get_task();
+
+	//出队函数
+	void del_path();
 };
 
 class Berth
@@ -105,6 +110,7 @@ public:
 	int time;//时间
 	int speed;//速度
 	int RobotId;
+	int BoatId;
 	SortedList<Good> Good_future;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
@@ -118,6 +124,7 @@ class Boat
 public:
 	int goal;
 	int status;
+	int berthId;
 
 	Boat(int status, int goal);
 	Boat();

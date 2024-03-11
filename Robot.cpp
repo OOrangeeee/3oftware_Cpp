@@ -1,6 +1,6 @@
 #include"classes.h"
 
-Robot::Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos)
+Robot::Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos, vector<vector<char>> ground)
 {
 	this->ID = id;
 	this->pos = pos;
@@ -9,12 +9,14 @@ Robot::Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int>
 	this->goal_pos = goal_pos;
 	this->berth_id = berth_id;
 	this->berth_pos = berth_pos;
+	this->ground = ground;
 	if_initPath = false;
 	if_inBerth = false;
 	path.clear();
 	go_path.clear();
 	back_path.clear();
 	future_path.clear();
+	next_pos = make_pair(-1, -1);
 }
 
 Robot::Robot()
@@ -32,6 +34,7 @@ Robot::Robot()
 	go_path.clear();
 	back_path.clear();
 	future_path.clear();
+	next_pos = make_pair(-1, -1);
 }
 
 void Robot::resverPath()
@@ -61,25 +64,35 @@ void Robot::initPath(vector<int> path)
 
 void Robot::update()
 {
+	if (pos == next_pos)
+	{
+		next_pos = make_pair(-1, -1);
+		del_path();
+	}
 	if (pos == berth_pos)
 	{
 		if_inBerth = true;
 	}
-
-	if (path.empty() && !if_has && if_inBerth)
+	else
+	{
+		if_inBerth = false;
+	}
+	/*if (path.empty())
+		printf("++++++++++++++++++++++++++++++++++++++++++++\n");*/
+	if (path.empty() && !if_has && if_inBerth && next_pos.first == -1 && next_pos.second == -1)
 	{
 		get_task();
 	}
 
-	if (!path.empty())
+	if (!path.empty() && next_pos.first == -1 && next_pos.second == -1)
 	{
 		move();
 	}
-	else if (path.empty() && if_has && if_inBerth)
+	if (path.empty() && if_has && if_inBerth && next_pos.first == -1 && next_pos.second == -1)
 	{
 		pull();
 	}
-	else if (path.empty() && !if_has && !if_inBerth)
+	if (path.empty() && !if_has && !if_inBerth && next_pos.first == -1 && next_pos.second == -1)
 	{
 		get();
 	}
@@ -89,7 +102,22 @@ void Robot::move()
 {
 	printf("move %d %d\n", ID, path[0]);
 	fflush(stdout);
-	path.erase(path.begin());
+	if (path[0] == 0)
+	{
+		next_pos = make_pair(pos.first, pos.second + 1);
+	}
+	else if (path[0] == 1)
+	{
+		next_pos = make_pair(pos.first, pos.second - 1);
+	}
+	else if (path[0] == 2)
+	{
+		next_pos = make_pair(pos.first - 1, pos.second);
+	}
+	else if (path[0] == 3)
+	{
+		next_pos = make_pair(pos.first + 1, pos.second);
+	}
 }
 
 void Robot::get()
@@ -100,6 +128,7 @@ void Robot::get()
 	path.clear();
 	path = back_path;
 	go_path.clear();
+	//next_pos = make_pair(-500, -500);
 }
 
 void Robot::pull()
@@ -122,4 +151,9 @@ void Robot::get_task()
 		path = go_path;
 		future_path.clear();
 	}
+}
+
+void Robot::del_path()
+{
+	path.erase(path.begin());
 }
