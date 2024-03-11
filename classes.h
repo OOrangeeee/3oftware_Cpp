@@ -12,16 +12,43 @@ public:
 
 	//每帧改变
 	pair<int, int> pos;//位置
-	bool if_has;
-	int status;
 
 	//跟随任务改变
 	pair<int, int> goal_pos;
 	vector<int> path;
 	vector<int> go_path;
 	vector<int> back_path;
+	vector<int> future_path;
 
+	//状态
+	bool if_has;
+	int status;
+	bool if_initPath;
+	bool if_inBerth;
+
+	//构造函数
 	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos);
+	
+	//获取回来的路径
+	void resverPath();
+
+	//初始化路径去港口
+	void initPath(vector<int> path);
+
+	//每帧更新函数，灵感来自unity 
+	void update();
+
+	//移动函数
+	void move();
+
+	//拿取函数
+	void get();
+
+	//放下函数
+	void pull();
+
+	//获取任务函数
+	void get_task();
 };
 
 class Berth
@@ -35,6 +62,8 @@ public:
 	SortedList<Good> Good_future;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
+
+	vector<int> give_task(int ID, vector<vector<char>> map);
 };
 
 class Boat
@@ -114,5 +143,7 @@ public:
 	void get_match();
 
 	void success();
+
+	void action();
 
 };

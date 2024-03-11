@@ -154,6 +154,44 @@ void Solver::everyInput()
 	scanf("%s", ok);
 }
 
+void Solver::action()
+{
+	//布置任务
+	for (int i = 0; i < berth_num; i++)
+	{
+		if (berths[i].RobotId != -1)
+		{
+			if (!berths[i].Good_future.empty() && robots[berths[i].RobotId].future_path.empty())
+			{
+				vector<int> tmp_path = berths[i].give_task(id, ground);
+				if (!tmp_path.empty())
+				{
+					robots[berths[i].RobotId].future_path = tmp_path;
+				}
+			}
+		}
+	}
+
+	//指示机器人
+	for (int i = 0; i < robot_num; i++)
+	{
+		if (robots[i].berth_id != -1)//有用的机器人
+		{
+			if (robots[i].status == 1)
+			{
+				if (robots[i].if_initPath == false)
+				{
+					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
+					robots[i].if_initPath = true;
+				}
+				robots[i].update();
+			}
+		}
+	}
+
+
+}
+
 void Solver::get_match()
 {
 	for (int i = 0; i < match_tmp.size(); i++)
