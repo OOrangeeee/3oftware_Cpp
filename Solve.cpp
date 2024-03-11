@@ -156,7 +156,7 @@ void Solver::action()
 	{
 		if (berths[i].RobotId != -1)
 		{
-			if (!berths[i].Good_future.empty() && robots[berths[i].RobotId].future_path.empty())
+			if (!berths[i].Good_future.empty() && robots[berths[i].RobotId].future_path.empty() && robots[berths[i].RobotId].if_inBerth)
 			{
 				vector<int> tmp_path = berths[i].give_task(id, ground);
 				if (!tmp_path.empty())

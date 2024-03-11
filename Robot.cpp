@@ -94,7 +94,7 @@ void Robot::move()
 
 void Robot::get()
 {
-	printf("get %d", ID);
+	printf("get %d\n", ID);
 	fflush(stdout);
 	if_has = true;
 	path.clear();
@@ -104,7 +104,7 @@ void Robot::get()
 
 void Robot::pull()
 {
-	printf("pull %d", ID);
+	printf("pull %d\n", ID);
 	fflush(stdout);
 	if_has = false;
 	path.clear();
