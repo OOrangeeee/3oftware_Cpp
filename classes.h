@@ -84,7 +84,7 @@ public:
 	void initPath(vector<int> path);
 
 	//每帧更新函数，灵感来自unity 
-	void update();
+	bool update();
 
 	//移动函数
 	void move();
@@ -111,6 +111,7 @@ public:
 	int speed;//速度
 	int RobotId;
 	int BoatId;
+	int count;//货物数量
 	SortedList<Good> Good_future;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
@@ -124,10 +125,26 @@ class Boat
 public:
 	int goal;
 	int status;
-	int berthId;
+	int berthId_1;
+	int berthId_2;
+	int berthId_1_num;
+	int berthId_2_num;
+	int berthId_1_time;
+	int berthId_2_time;
+	int berthId_1_speed;
+	int berthId_2_speed;
+	int count;
+	bool if_pre_berth;
+	bool can_have;
+	int id;
+	int zhen;
+	int if_ship;
 
 	Boat(int status, int goal);
 	Boat();
+	void update();
+	void ship(int goal);
+	void go();
 };
 
 
@@ -175,5 +192,7 @@ public:
 	void get_match();
 
 	void action();
+
+	void get_Boat_Berth_match();
 
 };

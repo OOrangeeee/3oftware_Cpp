@@ -62,7 +62,7 @@ void Robot::initPath(vector<int> path)
 	this->path = path;
 }
 
-void Robot::update()
+bool Robot::update()
 {
 	if (pos == next_pos)
 	{
@@ -77,8 +77,6 @@ void Robot::update()
 	{
 		if_inBerth = false;
 	}
-	/*if (path.empty())
-		printf("++++++++++++++++++++++++++++++++++++++++++++\n");*/
 	if (path.empty() && !if_has && if_inBerth && next_pos.first == -1 && next_pos.second == -1)
 	{
 		get_task();
@@ -88,14 +86,16 @@ void Robot::update()
 	{
 		move();
 	}
-	if (path.empty() && if_has && if_inBerth && next_pos.first == -1 && next_pos.second == -1)
-	{
-		pull();
-	}
 	if (path.empty() && !if_has && !if_inBerth && next_pos.first == -1 && next_pos.second == -1)
 	{
 		get();
 	}
+	if (path.empty() && if_has && if_inBerth && next_pos.first == -1 && next_pos.second == -1)
+	{
+		pull();
+		return true;
+	}
+	return false;
 }
 
 void Robot::move()

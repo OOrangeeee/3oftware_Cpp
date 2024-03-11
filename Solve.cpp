@@ -64,6 +64,14 @@ void Solver::init()
 	//读取容量
 	scanf("%d", &boat_capacity);
 
+	for (int i = 0; i < boat_num; i++)
+	{
+		boats[i].can_have = boat_capacity;
+		boats[i].id = i;
+	}
+
+	get_Boat_Berth_match();
+
 	char ok[5];
 	scanf("%s", ok);
 
@@ -179,7 +187,10 @@ void Solver::action()
 					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
 					robots[i].if_initPath = true;
 				}
-				robots[i].update();
+				if (robots[i].update())
+				{
+					berths[robots[i].berth_id].count++;
+				}
 			}
 		}
 	}
@@ -187,7 +198,13 @@ void Solver::action()
 	//指示船
 	for (int i = 0; i < boat_num; i++)
 	{
-		//TODO:船的调用策略
+		boats[i].zhen = id;
+		boats[i].berthId_1_num = berths[boats[i].berthId_1].count;
+		boats[i].berthId_2_num = berths[boats[i].berthId_2].count;
+		if (boats[i].status == 1 || boats[i].status == 2)
+		{
+			boats[i].update();
+		}
 	}
 
 }
@@ -259,4 +276,58 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	if (berthId == -1)
 		return;
 	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, val / min_dist));
+}
+
+void Solver::get_Boat_Berth_match()
+{
+	vector<int> time_berth;
+	int x = 0;
+	for (int i = 0; i < berth_num; i++)
+	{
+		time_berth.push_back(berths[i].time);
+	}
+	sort(time_berth.begin(), time_berth.end());
+	for (int i = 0; i < berth_num / 2; i++, x++)
+	{
+		int num1 = time_berth[i];
+		int num2 = time_berth[berth_num - i - 1];
+		int index1 = 0;
+		int index2 = 0;
+		for (int j = 0; j < berth_num; j++)
+		{
+			if (berths[j].time == num1 && berths[j].BoatId == -1)
+			{
+				berths[j].BoatId = x;
+				index1 = j;
+				break;
+			}
+		}
+		for (int j = 0; j < berth_num; j++)
+		{
+			if (berths[j].time == num2 && berths[j].BoatId == -1)
+			{
+				berths[j].BoatId = x;
+				index2 = j;
+				break;
+			}
+		}
+		if (berths[index1].speed > berths[index2].speed)
+		{
+			boats[i].berthId_1 = index1;
+			boats[i].berthId_2 = index2;
+			boats[i].berthId_1_speed = berths[index1].speed;
+			boats[i].berthId_2_speed = berths[index2].speed;
+			boats[i].berthId_1_time = berths[index1].time;
+			boats[i].berthId_2_time = berths[index2].time;
+		}
+		else
+		{
+			boats[i].berthId_1 = index2;
+			boats[i].berthId_2 = index1;
+			boats[i].berthId_1_speed = berths[index2].speed;
+			boats[i].berthId_2_speed = berths[index1].speed;
+			boats[i].berthId_1_time = berths[index2].time;
+			boats[i].berthId_2_time = berths[index1].time;
+		}
+	}
 }
