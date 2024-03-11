@@ -17,6 +17,23 @@ Robot::Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int>
 	future_path.clear();
 }
 
+Robot::Robot()
+{
+	this->ID = -1;
+	this->pos = make_pair(-1, -1);
+	this->if_has = -1;
+	this->status = -1;
+	this->goal_pos = make_pair(-1, -1);
+	this->berth_id = -1;
+	this->berth_pos = make_pair(-1, -1);
+	if_initPath = false;
+	if_inBerth = false;
+	path.clear();
+	go_path.clear();
+	back_path.clear();
+	future_path.clear();
+}
+
 void Robot::resverPath()
 {
 	back_path = go_path;
@@ -26,11 +43,11 @@ void Robot::resverPath()
 		if (back_path[i] == 0)
 			back_path[i] = 1;
 		else if (back_path[i] == 1)
-			back_path[i] == 0;
+			back_path[i] = 0;
 		else if (back_path[i] == 2)
-			back_path[i] == 3;
+			back_path[i] = 3;
 		else
-			back_path[i] == 2;
+			back_path[i] = 2;
 	}
 }
 
@@ -93,7 +110,7 @@ void Robot::pull()
 	path.clear();
 	//放下后获取任务
 	back_path.clear();
-	
+
 }
 
 void Robot::get_task()

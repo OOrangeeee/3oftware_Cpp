@@ -8,9 +8,9 @@ Solver::Solver()
 	berth_num = 10;
 	boat_num = 5;
 	N = 201;
-	robots.reserve(robot_num);
-	berths.reserve(berth_num);
-	boats.reserve(boat_num);
+	robots.resize(robot_num);
+	berths.resize(berth_num);
+	boats.resize(boat_num);
 	money = 0;
 	boat_capacity = 0;
 	id = 0;
@@ -87,7 +87,7 @@ void Solver::everyInput()
 	for (int i = 0; i < new_num; i++)
 	{
 		int x, y, val;
-		scanf("%d %d", &x, &y, &val);
+		scanf("%d %d %d", &x, &y, &val);
 		int die_time = id + 1000;
 		pair<int, int> pos = make_pair(x, y);
 		getGood(pos, die_time, val);
@@ -198,7 +198,7 @@ void Solver::get_match()
 	{
 		int index = match_tmp[i].second;
 		pair<int, int> tmp_pos = A_positions[index];
-		for (int j = 0; j < A_roubt.size(); i++)
+		for (int j = 0; j < A_roubt.size(); j++)
 		{
 			if (A_roubt[j].first.first == tmp_pos.first && A_roubt[j].first.second == tmp_pos.second)
 			{

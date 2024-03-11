@@ -1,14 +1,24 @@
 #include"classes.h"
 
-Berth::Berth(int id,pair<int,int> pos,int time,int speed)
+Berth::Berth(int id, pair<int, int> pos, int time, int speed)
 {
 	this->ID = id;
 	this->pos = pos;
 	this->time = time;
 	this->speed = speed;
+	this->RobotId = -1;
 }
 
-vector<int> Berth::give_task(int ID,vector<vector<char>> map)
+Berth::Berth()
+{
+	this->ID = -1;
+	this->pos = make_pair(-1, -1);
+	this->time = -1;
+	this->speed = -1;
+	this->RobotId = -1;
+}
+
+vector<int> Berth::give_task(int ID, vector<vector<char>> map)
 {
 	vector<int> task_path;
 	task_path.clear();

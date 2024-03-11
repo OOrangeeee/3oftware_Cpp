@@ -1,12 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <vector>
 #include <queue>
 #include <utility>
+#include <map>
 #include <cstdlib> 
 using namespace std;
 vector<int> findShortestPath(vector<vector<char>>& map, pair<int, int> start, pair<int, int> end);
 vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pair<int, int>>& groupA, vector<pair<int, int>>& groupB);
 int manhattanDistance(const pair<int, int>& a, const pair<int, int>& b);
 
+#ifndef SORTED_LIST_H
+#define SORTED_LIST_H
 template <typename T>
 class SortedList
 {
@@ -72,3 +76,4 @@ public:
         return data.end();
     }
 };
+#endif // SORTED_LIST_H

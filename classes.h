@@ -1,6 +1,51 @@
-#include <vector>
-#include <map>
+#define _CRT_SECURE_NO_WARNINGS
 #include"tools.h"
+using namespace std;
+
+class Good {
+public:
+	pair<int, int> pos;
+	int value;
+	int dietime;
+	int BerthId;
+	int dist;
+	int price;
+
+	// 构造函数
+	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price);
+	Good();
+
+	// 重载 < 运算符
+	bool operator<(const Good& other) const {
+		return price < other.price;
+	}
+
+	// 重载 > 运算符
+	bool operator>(const Good& other) const {
+		return price > other.price;
+	}
+
+	// 重载 == 运算符
+	bool operator==(const Good& other) const {
+		return price == other.price;
+	}
+
+	// 重载 != 运算符
+	bool operator!=(const Good& other) const {
+		return price != other.price;
+	}
+
+	// 重载 <= 运算符
+	bool operator<=(const Good& other) const {
+		return price <= other.price;
+	}
+
+	// 重载 >= 运算符
+	bool operator>=(const Good& other) const {
+		return price >= other.price;
+	}
+};
+
 
 class Robot
 {
@@ -28,7 +73,8 @@ public:
 
 	//构造函数
 	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos);
-	
+	Robot();
+
 	//获取回来的路径
 	void resverPath();
 
@@ -62,6 +108,7 @@ public:
 	SortedList<Good> Good_future;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
+	Berth();
 
 	vector<int> give_task(int ID, vector<vector<char>> map);
 };
@@ -73,30 +120,9 @@ public:
 	int status;
 
 	Boat(int status, int goal);
+	Boat();
 };
 
-class Good
-{
-public:
-	pair<int, int> pos;
-	int value;
-	int dietime;
-	int BerthId;
-	int dist;
-	int price;
-
-	// 重载 < 运算符
-	bool operator<(const Good& other) const {
-		return price < other.price;
-	}
-
-	// 重载 > 运算符
-	bool operator>(const Good& other) const {
-		return price > other.price;
-	}
-
-	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price);
-};
 
 class Solver
 {
@@ -110,7 +136,6 @@ public:
 
 	//输入一次后不变
 	int boat_capacity;//容量
-	vector<int> ground;//地图
 	vector<pair<int, int>> A_positions;//机器人的初始位置
 	vector<pair<int, int>> match_br;//港口到机器人匹配
 	vector<pair<int, int>> match_rb;//机器人到港口匹配
