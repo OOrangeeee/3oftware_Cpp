@@ -87,5 +87,5 @@
 ### 其他
 
 ```bash
-PreliminaryJudge_win_1.exe -m ./maps/map1.txt -l NONE -d log.txt "./out/build/x64-debug/3oftware.exe"
+PreliminaryJudge.exe -m ./maps/map1.txt -l NONE -d log.txt "./out/build/x64-debug/3oftware.exe"
 ```

@@ -133,7 +133,7 @@ public:
 	int berthId_2_time;
 	int berthId_1_speed;
 	int berthId_2_speed;
-	int count;
+	int counts;
 	bool if_pre_berth;
 	bool can_have;
 	int id;

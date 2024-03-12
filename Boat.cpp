@@ -14,7 +14,7 @@ Boat::Boat(int status, int goal)
 	this->berthId_2_speed = 0;
 	this->berthId_1_time = -1;
 	this->berthId_2_time = -1;
-	this->count = 0;
+	this->counts = 0;
 	this->id = -1;
 	this->zhen = -1;
 	this->if_ship = 0;
@@ -34,7 +34,7 @@ Boat::Boat()
 	this->berthId_2_speed = 0;
 	this->berthId_1_time = -1;
 	this->berthId_2_time = -1;
-	this->count = 0;
+	this->counts = 0;
 	this->id = -1;
 	this->zhen = -1;
 	this->if_ship = 0;
@@ -42,47 +42,29 @@ Boat::Boat()
 
 void Boat::update()
 {
-	if_ship++;
-	if (goal == -1)
+	/*if_ship++;
+	if (if_ship % 500 == 0)
+		return;
+	if (status == 1 || goal == berthId_1)
 	{
-		ship(berthId_1);
-		return;
+		counts += min(berthId_1_num, berthId_1_speed);
 	}
-	if (if_ship % 500 != 0)
-		return;
-	if (goal == berthId_1)
+	else if (status == 1 || goal == berthId_2)
 	{
-		if (zhen + berthId_1_time + 40 >= 300)
-		{
-			go();
-			return;
-		}
-		count += min(berthId_1_speed, berthId_1_num);
-		ship(berthId_1);
-		return;
+		counts += min(berthId_2_num, berthId_2_speed);
 	}
-	else if (goal == berthId_2)
-	{
-		if (zhen + berthId_2_time + 40 >= 300)
-		{
-			go();
-			return;
-		}
-		count += min(berthId_2_speed, berthId_2_num);
-		ship(berthId_2);
-		return;
-	}
-	if (count > can_have)
+	if (counts >= can_have)
 	{
 		go();
 		return;
 	}
-	if (count + berthId_2_num >= can_have)
+	if (zhen > 11000)
 	{
-		ship(berthId_2);
+		go();
 		return;
-	}
-
+	}*/
+	
+		go();
 }
 
 void Boat::ship(int goal)
@@ -95,4 +77,5 @@ void Boat::go()
 {
 	printf("go %d\n", id);
 	fflush(stdout);
+	counts = 0;
 }

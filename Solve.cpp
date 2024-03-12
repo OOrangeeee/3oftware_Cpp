@@ -16,6 +16,7 @@ Solver::Solver()
 	id = 0;
 	new_num = 0;
 	if_getMatch = false;
+	vector<int> next_point_for_Robots;
 }
 
 //≥ı ºªØ≥Ã–Ú
@@ -201,7 +202,11 @@ void Solver::action()
 		boats[i].zhen = id;
 		boats[i].berthId_1_num = berths[boats[i].berthId_1].count;
 		boats[i].berthId_2_num = berths[boats[i].berthId_2].count;
-		if (boats[i].status == 1 || boats[i].status == 2)
+		if (boats[i].goal < 0 && boats[0].status == 1)
+		{
+			boats[i].ship(boats[i].berthId_1);
+		}
+		else if (boats[0].status == 1)
 		{
 			boats[i].update();
 		}
