@@ -6,8 +6,14 @@ Berth::Berth(int id, pair<int, int> pos, int time, int speed)
 	this->pos = pos;
 	this->time = time;
 	this->speed = speed;
-	this->RobotId = -1;
 	this->BoatId = -1;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			poses.push_back(make_pair(pos.first + i, pos.second + j));
+		}
+	}
 }
 
 Berth::Berth()
@@ -16,11 +22,10 @@ Berth::Berth()
 	this->pos = make_pair(-1, -1);
 	this->time = -1;
 	this->speed = -1;
-	this->RobotId = -1;
 	this->BoatId = -1;
 }
 
-vector<int> Berth::give_task(int ID, vector<vector<char>> map)
+vector<int> Berth::give_task(int ID, vector<vector<char>> map, pair<int, int> now_pos_berth)
 {
 	vector<int> task_path;
 	task_path.clear();
@@ -28,9 +33,43 @@ vector<int> Berth::give_task(int ID, vector<vector<char>> map)
 	{
 		Good good = Good_future[0];
 		Good_future.removeAt(0);
-		task_path = findShortestPath(map, pos, good.pos);
+		int x = pos.first - now_pos_berth.first;
+		int y = pos.second - now_pos_berth.second;
+		if (x < 0)
+		{
+			for (int i = 0; i < -1 * (x); i++)
+			{
+				task_path.push_back(2);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < x; i++)
+			{
+				task_path.push_back(3);
+			}
+		}
+		if (y < 0)
+		{
+			for (int i = 0; i < -1 * (y); i++)
+			{
+				task_path.push_back(1);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < y; i++)
+			{
+				task_path.push_back(0);
+			}
+		}
+		for (int i = 0; i < good.path.size(); i++)
+		{
+			task_path.push_back(good.path[i]);
+		}
 		if (ID + task_path.size() + 2 >= good.dietime)
 		{
+			task_path.clear();
 			continue;
 		}
 		else

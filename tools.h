@@ -11,10 +11,10 @@
 using namespace std;
 vector<int> findShortestPath(vector<vector<char>>& map, pair<int, int> start, pair<int, int> end);
 vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pair<int, int>>& groupA, vector<pair<int, int>>& groupB);
-int manhattanDistance(const pair<int, int>& a, const pair<int, int>& b);
 vector<pair<int, int>> findAllPairDuplicates(const vector<pair<int, int>>& vec);
 vector<pair<int, int>> find_equal_pairs(const vector<pair<int, int>>& arrayA, const vector<pair<int, int>>& arrayB);
 vector<pair<int, int>> merge_vectors(const vector<pair<int, int>>& vec1, const vector<pair<int, int>>& vec2);
+
 
 #ifndef SORTED_LIST_H
 #define SORTED_LIST_H

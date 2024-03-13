@@ -43,7 +43,7 @@ void Boat::update()
 		int to_add = min(berthId_1_num, berthId_1_speed);
 		counts += to_add;
 		berthId_1_num -= to_add;
-		if (zhen + berthId_1_time + 500 + 10 > 15000)
+		if (zhen + berthId_1_time + 10 > 15000)
 		{
 			go();
 			return;

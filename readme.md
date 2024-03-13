@@ -87,5 +87,9 @@
 ### 其他
 
 ```bash
-PreliminaryJudge.exe -m ./maps/map1.txt -l NONE -d log.txt "./out/build/x64-debug/3oftware.exe"
+PreliminaryJudge.exe -m ./maps/map1.txt -l NONE -d log.txt "./out/build/x64-debug/main.exe"
 ```
+
+## 记录
+
+**我希望在我的一生，我都能保持着这样一个爱好，就像现在一样，永远喜欢coding。（晋晨曦2024.3.14凌晨5.19作于华科沁苑网易技术俱乐部）。**
