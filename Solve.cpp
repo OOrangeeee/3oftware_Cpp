@@ -188,8 +188,7 @@ void Solver::action()
 					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
 					robots[i].if_initPath = true;
 				}
-				robots[i].get_next_pos();
-				next_point_for_Robots[i] = robots[i].next_pos;
+				get_next_pos();
 				check_error();
 				if (robots[i].update())
 				{
@@ -404,4 +403,33 @@ void Solver::check_error()
 	error_1.clear();
 	error_2.clear();
 	error.clear();
+}
+
+void Solver::get_next_pos()
+{
+	pair<int, int> next_pos;
+	for (int i = 0; i < robot_num; i++)
+	{
+		if (robots[i].path.empty())
+		{
+			next_pos = make_pair(-1, -1);
+		}
+		else if (robots[i].path[0] == 0)
+		{
+			next_pos = make_pair(robots[i].pos.first, robots[i].pos.second + 1);
+		}
+		else if (robots[i].path[0] == 1)
+		{
+			next_pos = make_pair(robots[i].pos.first, robots[i].pos.second - 1);
+		}
+		else if (robots[i].path[0] == 2)
+		{
+			next_pos = make_pair(robots[i].pos.first - 1, robots[i].pos.second);
+		}
+		else if (robots[i].path[0] == 3)
+		{
+			next_pos = make_pair(robots[i].pos.first + 1, robots[i].pos.second);
+		}
+		next_point_for_Robots[i] = robots[i].next_pos;
+	}
 }

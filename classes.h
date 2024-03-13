@@ -201,4 +201,5 @@ public:
 
 	void check_error();
 
+	void get_next_pos();
 };
