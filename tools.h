@@ -13,8 +13,7 @@ vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pa
 int manhattanDistance(const pair<int, int>& a, const pair<int, int>& b);
 vector<pair<int, int>> findAllPairDuplicates(const vector<pair<int, int>>& vec);
 vector<pair<int, int>> find_equal_pairs(const vector<pair<int, int>>& arrayA, const vector<pair<int, int>>& arrayB);
-template <typename T>
-vector<T> merge_vectors(const vector<T>& vec1, const vector<T>& vec2);
+vector<pair<int, int>> merge_vectors(const vector<pair<int, int>>& vec1, const vector<pair<int, int>>& vec2);
 
 #ifndef SORTED_LIST_H
 #define SORTED_LIST_H
