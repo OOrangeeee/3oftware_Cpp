@@ -103,6 +103,9 @@ public:
 
 	//获取下个位置
 	void get_next_pos();
+
+	//解决冲突
+	bool solve_error();
 };
 
 class Berth

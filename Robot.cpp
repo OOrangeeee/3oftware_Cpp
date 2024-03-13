@@ -166,3 +166,77 @@ void Robot::get_next_pos()
 		next_pos = make_pair(pos.first + 1, pos.second);
 	}
 }
+
+bool Robot::solve_error()
+{
+	//尝试改变路径解决冲突
+	//先找到这个机器人现在要往哪个地方走，通过 path[0]即可
+	//然后先考虑逆时针九十度的方向避让，然后考虑顺时针90°的方向避让，最后考虑往回走
+	int now_dir = path[0];
+	vector<pair<int, int>> plan_place;//计划可能去的地方
+	if (now_dir == 0)//right
+	{
+		plan_place.push_back(make_pair(pos.first - 1, pos.second));
+		plan_place.push_back(make_pair(pos.first + 1, pos.second));
+		plan_place.push_back(make_pair(pos.first, pos.second - 1));
+	}
+	else if (now_dir == 1)//left
+	{
+		plan_place.push_back(make_pair(pos.first + 1, pos.second));
+		plan_place.push_back(make_pair(pos.first - 1, pos.second));
+		plan_place.push_back(make_pair(pos.first, pos.second + 1));
+	}
+	else if (now_dir == 2)//up
+	{
+		plan_place.push_back(make_pair(pos.first, pos.second - 1));
+		plan_place.push_back(make_pair(pos.first, pos.second + 1));
+		plan_place.push_back(make_pair(pos.first + 1, pos.second));
+	}
+	else//down
+	{
+		plan_place.push_back(make_pair(pos.first, pos.second + 1));
+		plan_place.push_back(make_pair(pos.first, pos.second - 1));
+		plan_place.push_back(make_pair(pos.first - 1, pos.second));
+	}
+	int plan_go = -1;
+	int plan_back = -1;
+	for (int i = 0; i < plan_place.size(); i++)
+	{
+		if (ground[plan_place[i].first][plan_place[i].second] == '.' || ground[plan_place[i].first][plan_place[i].second] == 'B')
+		{
+			if (plan_place[i].first != pos.first)
+			{
+				if (plan_place[i].first > pos.first)
+				{
+					plan_go = 3;
+					plan_back = 2;
+				}
+				else
+				{
+					plan_go = 2;
+					plan_back = 3;
+				}
+			}
+			else
+			{
+				if (plan_place[i].second > pos.second)
+				{
+					plan_go = 0;
+					plan_back = 1;
+				}
+				else
+				{
+					plan_go = 1;
+					plan_back = 0;
+				}
+			}
+		}
+	}
+	if (plan_go == -1)
+	{
+		return false;
+	}
+	path.insert(path.begin(), plan_back);
+	path.insert(path.begin(), plan_go);
+	return true;
+}

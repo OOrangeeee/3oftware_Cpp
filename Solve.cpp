@@ -350,8 +350,27 @@ void Solver::check_error()
 	vector<pair<int, int>> error_1 = findAllPairDuplicates(next_point_for_Robots);
 	vector<pair<int, int>> error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
 	vector<pair<int, int>> error = merge_vectors(error_1, error_2);
-	if (!error.empty())
+	while (!error.empty())
 	{
-
+		int error_robot_id_1 = error[0].first;
+		int error_robot_id_2 = error[0].second;
+		error.erase(error.begin());
+		if (robots[error_robot_id_1].next_pos.first != -1 && robots[error_robot_id_1].next_pos.second != -1 && robots[error_robot_id_2].next_pos.first != -1 && robots[error_robot_id_2].next_pos.second != -1)
+		{
+			//真冲突了
+			//尝试用第一个机器人解决冲突
+			bool num1_success = robots[error_robot_id_1].solve_error();
+			if (num1_success)
+			{
+				break;
+			}
+			else
+			{
+				bool num2_success = robots[error_robot_id_2].solve_error();
+			}
+		}
 	}
+	error_1.clear();
+	error_2.clear();
+	error.clear();
 }
