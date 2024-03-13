@@ -328,7 +328,7 @@ void Solver::get_Boat_Berth_match()
 			boats[i].berthId_1_time = berths[index1].time;
 			boats[i].berthId_2_time = berths[index2].time;
 		}
-		else
+		else if(berths[index1].speed < berths[index2].speed)
 		{
 			boats[i].berthId_1 = index2;
 			boats[i].berthId_2 = index1;
@@ -336,6 +336,27 @@ void Solver::get_Boat_Berth_match()
 			boats[i].berthId_2_speed = berths[index1].speed;
 			boats[i].berthId_1_time = berths[index2].time;
 			boats[i].berthId_2_time = berths[index1].time;
+		}
+		else
+		{
+			if (berths[index1].time <= berths[index2].time)
+			{
+				boats[i].berthId_1 = index1;
+				boats[i].berthId_2 = index2;
+				boats[i].berthId_1_speed = berths[index1].speed;
+				boats[i].berthId_2_speed = berths[index2].speed;
+				boats[i].berthId_1_time = berths[index1].time;
+				boats[i].berthId_2_time = berths[index2].time;
+			}
+			else
+			{
+				boats[i].berthId_1 = index2;
+				boats[i].berthId_2 = index1;
+				boats[i].berthId_1_speed = berths[index2].speed;
+				boats[i].berthId_2_speed = berths[index1].speed;
+				boats[i].berthId_1_time = berths[index2].time;
+				boats[i].berthId_2_time = berths[index1].time;
+			}
 		}
 	}
 }
