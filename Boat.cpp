@@ -42,29 +42,29 @@ Boat::Boat()
 
 void Boat::update()
 {
-	/*if_ship++;
-	if (if_ship % 500 == 0)
-		return;
 	if (status == 1 || goal == berthId_1)
 	{
 		counts += min(berthId_1_num, berthId_1_speed);
+		if (zhen + berthId_1_time + 500 + 10 > 15000)
+		{
+			go();
+			return;
+		}
 	}
 	else if (status == 1 || goal == berthId_2)
 	{
 		counts += min(berthId_2_num, berthId_2_speed);
+		if (zhen + berthId_2_time + 10 > 15000)
+		{
+			go();
+			return;
+		}
 	}
 	if (counts >= can_have)
 	{
 		go();
 		return;
 	}
-	if (zhen > 11000)
-	{
-		go();
-		return;
-	}*/
-	
-		go();
 }
 
 void Boat::ship(int goal)

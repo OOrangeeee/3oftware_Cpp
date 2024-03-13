@@ -205,11 +205,11 @@ void Solver::action()
 		boats[i].zhen = id;
 		boats[i].berthId_1_num = berths[boats[i].berthId_1].count;
 		boats[i].berthId_2_num = berths[boats[i].berthId_2].count;
-		if (boats[i].goal < 0 && boats[0].status == 1)
+		if (boats[i].goal < 0 && boats[i].status == 1)
 		{
 			boats[i].ship(boats[i].berthId_1);
 		}
-		else if (boats[0].status == 1)
+		else if (boats[i].status == 1)
 		{
 			boats[i].update();
 		}
