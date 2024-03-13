@@ -140,7 +140,7 @@ public:
 	int berthId_1_speed;
 	int berthId_2_speed;
 	int counts;
-	bool can_have;
+	int can_have;
 	int id;
 	int zhen;
 

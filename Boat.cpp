@@ -65,11 +65,6 @@ void Boat::update()
 		go();
 		return;
 	}
-	if (berthId_1_num == 0)
-	{
-		ship(berthId_2);
-		return;
-	}
 	if (berthId_2_num + counts > can_have)
 	{
 		if (500 + berthId_2_time + 10 < 15000)

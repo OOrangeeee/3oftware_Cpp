@@ -392,7 +392,7 @@ void Solver::check_error()
 			bool num1_success = robots[error_robot_id_1].solve_error();
 			if (num1_success)
 			{
-				break;
+				continue;
 			}
 			else
 			{
