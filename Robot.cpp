@@ -102,22 +102,7 @@ void Robot::move()
 {
 	printf("move %d %d\n", ID, path[0]);
 	fflush(stdout);
-	if (path[0] == 0)
-	{
-		next_pos = make_pair(pos.first, pos.second + 1);
-	}
-	else if (path[0] == 1)
-	{
-		next_pos = make_pair(pos.first, pos.second - 1);
-	}
-	else if (path[0] == 2)
-	{
-		next_pos = make_pair(pos.first - 1, pos.second);
-	}
-	else if (path[0] == 3)
-	{
-		next_pos = make_pair(pos.first + 1, pos.second);
-	}
+	get_next_pos();
 }
 
 void Robot::get()
@@ -156,4 +141,28 @@ void Robot::get_task()
 void Robot::del_path()
 {
 	path.erase(path.begin());
+}
+
+void Robot::get_next_pos()
+{
+	if (path.empty())
+	{
+		next_pos = make_pair(-1, -1);
+	}
+	else if (path[0] == 0)
+	{
+		next_pos = make_pair(pos.first, pos.second + 1);
+	}
+	else if (path[0] == 1)
+	{
+		next_pos = make_pair(pos.first, pos.second - 1);
+	}
+	else if (path[0] == 2)
+	{
+		next_pos = make_pair(pos.first - 1, pos.second);
+	}
+	else if (path[0] == 3)
+	{
+		next_pos = make_pair(pos.first + 1, pos.second);
+	}
 }
