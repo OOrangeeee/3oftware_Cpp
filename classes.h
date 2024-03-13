@@ -117,7 +117,6 @@ public:
 	int speed;//速度
 	int RobotId;
 	int BoatId;
-	int count;//货物数量
 	SortedList<Good> Good_future;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
@@ -140,11 +139,9 @@ public:
 	int berthId_1_speed;
 	int berthId_2_speed;
 	int counts;
-	bool if_pre_berth;
 	bool can_have;
 	int id;
 	int zhen;
-	int if_ship;
 
 	Boat(int status, int goal);
 	Boat();

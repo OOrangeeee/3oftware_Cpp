@@ -193,7 +193,14 @@ void Solver::action()
 				check_error();
 				if (robots[i].update())
 				{
-					berths[robots[i].berth_id].count++;
+					if (robots[i].berth_id == boats[berths[robots[i].berth_id].BoatId].berthId_1)
+					{
+						boats[berths[robots[i].berth_id].BoatId].berthId_1_num++;
+					}
+					else
+					{
+						boats[berths[robots[i].berth_id].BoatId].berthId_2_num++;
+					}
 				}
 			}
 		}
@@ -203,8 +210,6 @@ void Solver::action()
 	for (int i = 0; i < boat_num; i++)
 	{
 		boats[i].zhen = id;
-		boats[i].berthId_1_num = berths[boats[i].berthId_1].count;
-		boats[i].berthId_2_num = berths[boats[i].berthId_2].count;
 		if (boats[i].goal < 0 && boats[i].status == 1)
 		{
 			boats[i].ship(boats[i].berthId_1);
@@ -319,7 +324,12 @@ void Solver::get_Boat_Berth_match()
 				break;
 			}
 		}
-		if (berths[index1].speed > berths[index2].speed)
+		double full_time_1 = (double)boat_capacity / (double)berths[index1].speed;
+		double full_time_2 = (double)boat_capacity / (double)berths[index2].speed;
+		double time_1 = 2 * berths[index1].time + full_time_1;
+		double time_2 = 2 * berths[index2].time + full_time_2;
+
+		if (time_1 < time_2)
 		{
 			boats[i].berthId_1 = index1;
 			boats[i].berthId_2 = index2;
@@ -328,7 +338,7 @@ void Solver::get_Boat_Berth_match()
 			boats[i].berthId_1_time = berths[index1].time;
 			boats[i].berthId_2_time = berths[index2].time;
 		}
-		else if(berths[index1].speed < berths[index2].speed)
+		else if (time_1 > time_2)
 		{
 			boats[i].berthId_1 = index2;
 			boats[i].berthId_2 = index1;
@@ -339,7 +349,7 @@ void Solver::get_Boat_Berth_match()
 		}
 		else
 		{
-			if (berths[index1].time <= berths[index2].time)
+			if (berths[index1].speed > berths[index2].speed)
 			{
 				boats[i].berthId_1 = index1;
 				boats[i].berthId_2 = index2;

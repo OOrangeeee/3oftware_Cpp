@@ -8,7 +8,6 @@ Berth::Berth(int id, pair<int, int> pos, int time, int speed)
 	this->speed = speed;
 	this->RobotId = -1;
 	this->BoatId = -1;
-	this->count = 0;
 }
 
 Berth::Berth()
@@ -19,7 +18,6 @@ Berth::Berth()
 	this->speed = -1;
 	this->RobotId = -1;
 	this->BoatId = -1;
-	this->count = 0;
 }
 
 vector<int> Berth::give_task(int ID, vector<vector<char>> map)
