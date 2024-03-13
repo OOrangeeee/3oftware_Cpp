@@ -59,6 +59,7 @@ public:
 	//每帧改变
 	pair<int, int> pos;//位置
 	pair<int, int> next_pos;
+	int now_dir;
 
 	//跟随任务改变
 	pair<int, int> goal_pos;
@@ -99,7 +100,7 @@ public:
 	void get_task();
 
 	//出队函数
-	void del_path();
+	int del_path();
 
 	//获取下个位置
 	void get_next_pos();

@@ -177,6 +177,8 @@ void Solver::action()
 	}
 
 	//指示机器人
+	get_next_pos();
+	check_error();
 	for (int i = 0; i < robot_num; i++)
 	{
 		if (robots[i].berth_id != -1)//有用的机器人
@@ -188,8 +190,6 @@ void Solver::action()
 					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
 					robots[i].if_initPath = true;
 				}
-				get_next_pos();
-				//check_error();
 				if (robots[i].update())
 				{
 					if (robots[i].berth_id == boats[berths[robots[i].berth_id].BoatId].berthId_1)
@@ -385,7 +385,7 @@ void Solver::check_error()
 		int error_robot_id_1 = error[0].first;
 		int error_robot_id_2 = error[0].second;
 		error.erase(error.begin());
-		if (robots[error_robot_id_1].next_pos.first != -1 && robots[error_robot_id_1].next_pos.second != -1 && robots[error_robot_id_2].next_pos.first != -1 && robots[error_robot_id_2].next_pos.second != -1)
+		if (error_robot_id_1 != error_robot_id_2 && next_point_for_Robots[error_robot_id_1].first != -1 && next_point_for_Robots[error_robot_id_1].second != -1 && next_point_for_Robots[error_robot_id_2].first != -1 && next_point_for_Robots[error_robot_id_2].second != -1)
 		{
 			//真冲突了
 			//尝试用第一个机器人解决冲突
@@ -430,6 +430,6 @@ void Solver::get_next_pos()
 		{
 			next_pos = make_pair(robots[i].pos.first + 1, robots[i].pos.second);
 		}
-		next_point_for_Robots[i] = robots[i].next_pos;
+		next_point_for_Robots[i] = next_pos;
 	}
 }

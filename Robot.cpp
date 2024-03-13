@@ -67,7 +67,12 @@ bool Robot::update()
 	if (pos == next_pos)
 	{
 		next_pos = make_pair(-1, -1);
-		del_path();
+		now_dir = -1;
+	}
+	else if (next_pos.first != -1 && now_dir != -1)
+	{
+		printf("move %d %d\n", ID, now_dir);
+		return false;
 	}
 	if (pos == berth_pos)
 	{
@@ -103,6 +108,7 @@ void Robot::move()
 	printf("move %d %d\n", ID, path[0]);
 	fflush(stdout);
 	get_next_pos();
+	now_dir = del_path();
 }
 
 void Robot::get()
@@ -138,9 +144,11 @@ void Robot::get_task()
 	}
 }
 
-void Robot::del_path()
+int Robot::del_path()
 {
+	int dir = path[0];
 	path.erase(path.begin());
+	return dir;
 }
 
 void Robot::get_next_pos()
@@ -172,21 +180,21 @@ bool Robot::solve_error()
 	//尝试改变路径解决冲突
 	//先找到这个机器人现在要往哪个地方走，通过 path[0]即可
 	//然后先考虑逆时针九十度的方向避让，然后考虑顺时针90°的方向避让，最后考虑往回走
-	int now_dir = path[0];
+	int now_dir_error = path[0];
 	vector<pair<int, int>> plan_place;//计划可能去的地方
-	if (now_dir == 0)//right
+	if (now_dir_error == 0)//right
 	{
 		plan_place.push_back(make_pair(pos.first - 1, pos.second));
 		plan_place.push_back(make_pair(pos.first + 1, pos.second));
 		plan_place.push_back(make_pair(pos.first, pos.second - 1));
 	}
-	else if (now_dir == 1)//left
+	else if (now_dir_error == 1)//left
 	{
 		plan_place.push_back(make_pair(pos.first + 1, pos.second));
 		plan_place.push_back(make_pair(pos.first - 1, pos.second));
 		plan_place.push_back(make_pair(pos.first, pos.second + 1));
 	}
-	else if (now_dir == 2)//up
+	else if (now_dir_error == 2)//up
 	{
 		plan_place.push_back(make_pair(pos.first, pos.second - 1));
 		plan_place.push_back(make_pair(pos.first, pos.second + 1));
@@ -210,11 +218,13 @@ bool Robot::solve_error()
 				{
 					plan_go = 3;
 					plan_back = 2;
+					break;
 				}
 				else
 				{
 					plan_go = 2;
 					plan_back = 3;
+					break;
 				}
 			}
 			else
@@ -223,11 +233,13 @@ bool Robot::solve_error()
 				{
 					plan_go = 0;
 					plan_back = 1;
+					break;
 				}
 				else
 				{
 					plan_go = 1;
 					plan_back = 0;
+					break;
 				}
 			}
 		}
