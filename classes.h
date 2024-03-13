@@ -100,6 +100,9 @@ public:
 
 	//出队函数
 	void del_path();
+
+	//获取下个位置
+	void get_next_pos();
 };
 
 class Berth
@@ -174,6 +177,7 @@ public:
 	int money;
 	int id;
 	int new_num;
+	vector<pair<int,int>> next_point_for_Robots;
 	//状态
 	bool if_getMatch;
 
@@ -194,5 +198,7 @@ public:
 	void action();
 
 	void get_Boat_Berth_match();
+
+	void check_error();
 
 };

@@ -16,7 +16,6 @@ Solver::Solver()
 	id = 0;
 	new_num = 0;
 	if_getMatch = false;
-	vector<int> next_point_for_Robots;
 }
 
 //初始化程序
@@ -40,6 +39,7 @@ void Solver::init()
 	for (int i = 0; i < robot_num; i++)
 	{
 		robots[i] = Robot(i, make_pair(-1, -1), false, 1, make_pair(-1, -1), -1, make_pair(-1, -1), ground);
+		next_point_for_Robots.push_back(make_pair(-1, -1));
 	}
 
 	//初始化船
@@ -188,6 +188,9 @@ void Solver::action()
 					robots[i].initPath(findShortestPath(ground, robots[i].pos, robots[i].berth_pos));
 					robots[i].if_initPath = true;
 				}
+				robots[i].get_next_pos();
+				next_point_for_Robots[i] = robots[i].next_pos;
+				check_error();
 				if (robots[i].update())
 				{
 					berths[robots[i].berth_id].count++;
@@ -334,5 +337,21 @@ void Solver::get_Boat_Berth_match()
 			boats[i].berthId_1_time = berths[index2].time;
 			boats[i].berthId_2_time = berths[index1].time;
 		}
+	}
+}
+
+void Solver::check_error()
+{
+	vector<pair<int, int>> now_pos;
+	for (int i = 0; i < robot_num; i++)
+	{
+		now_pos.push_back(robots[i].pos);
+	}
+	vector<pair<int, int>> error_1 = findAllPairDuplicates(next_point_for_Robots);
+	vector<pair<int, int>> error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
+	vector<pair<int, int>> error = merge_vectors(error_1, error_2);
+	if (!error.empty())
+	{
+
 	}
 }
