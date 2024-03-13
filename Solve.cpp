@@ -189,7 +189,7 @@ void Solver::action()
 					robots[i].if_initPath = true;
 				}
 				get_next_pos();
-				check_error();
+				//check_error();
 				if (robots[i].update())
 				{
 					if (robots[i].berth_id == boats[berths[robots[i].berth_id].BoatId].berthId_1)

@@ -54,7 +54,7 @@ void Robot::resverPath()
 	}
 }
 
-void Robot::initPath(vector<int> path)
+void Robot::initPath(const vector<int>& path)
 {
 	back_path.clear();
 	go_path.clear();

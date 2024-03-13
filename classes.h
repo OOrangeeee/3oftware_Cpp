@@ -81,7 +81,7 @@ public:
 	void resverPath();
 
 	//初始化路径去港口
-	void initPath(vector<int> path);
+	void initPath(const vector<int>& path);
 
 	//每帧更新函数，灵感来自unity 
 	bool update();
