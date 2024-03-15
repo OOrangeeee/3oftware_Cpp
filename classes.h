@@ -123,6 +123,7 @@ public:
 	SortedList<Good> Good_future;
 	vector<pair<int, int>> poses;
 	vector<pair<int, int>> has_poses;
+	double price;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
 	Berth();
@@ -136,13 +137,13 @@ public:
 	int goal;
 	int status;
 	int berthId_1;
-	int berthId_2;
+	//int berthId_2;
 	int berthId_1_num;
-	int berthId_2_num;
+	//int berthId_2_num;
 	int berthId_1_time;
-	int berthId_2_time;
+	//int berthId_2_time;
 	int berthId_1_speed;
-	int berthId_2_speed;
+	//int berthId_2_speed;
 	int counts;
 	int can_have;
 	int id;
@@ -214,4 +215,8 @@ public:
 	bool ifHere(const vector<pair<int, int>>& here, const pair<int, int>& goal);
 
 	vector<pair<int, int>> check_error_for_berth(vector<pair<int, int>> pos, vector<pair<int, int>> next_pos);
+
+	void get_berths();
+
+	bool tool_get_berths(const int& a, const int& b);
 };

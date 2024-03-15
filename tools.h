@@ -8,12 +8,17 @@
 #include <list>
 #include <set>
 #include <algorithm>
+#include <stack>
 using namespace std;
 vector<int> findShortestPath(vector<vector<char>>& map, pair<int, int> start, pair<int, int> end);
 vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pair<int, int>>& groupA, vector<pair<int, int>>& groupB);
 vector<pair<int, int>> findAllPairDuplicates(const vector<pair<int, int>>& vec);
 vector<pair<int, int>> find_equal_pairs(const vector<pair<int, int>>& arrayA, const vector<pair<int, int>>& arrayB);
 vector<pair<int, int>> merge_vectors(const vector<pair<int, int>>& vec1, const vector<pair<int, int>>& vec2);
+vector<vector<pair<int, int>>> partitionGround(vector<vector<char>>& ground);
+void removeIndices(vector<vector<pair<int, int>>>& r, vector<int>& indices);
+void removeIndices_for_2(vector<vector<int>>& r, vector<int>& indices);
+void removeIndices_for_3(vector<int>& r, vector<int>& indices);
 
 
 #ifndef SORTED_LIST_H

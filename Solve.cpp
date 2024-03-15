@@ -71,13 +71,20 @@ void Solver::init()
 		boats[i].id = i;
 	}
 
+	for (int i = 0; i < berth_num; i++)
+	{
+		berths[i].price = 2 * berths[i].time + (boat_capacity / berths[i].speed);
+	}
+	//存下所有的A的位置
+	findAndReplaceA(ground);
+	get_berths();
 	get_Boat_Berth_match();
+
 
 	char ok[5];
 	scanf("%s", ok);
 
-	//存下所有的A的位置
-	findAndReplaceA(ground);
+
 	getMatchTmp();
 	printf("OK\n");
 	fflush(stdout);
@@ -189,7 +196,19 @@ void Solver::action()
 	check_error();
 	for (int i = 0; i < robot_num; i++)
 	{
-		if (robots[i].berth_id != -1)//有用的机器人
+		if (robots[i].berth_id == -1)
+		{
+			if (!robots[i].path.empty())
+			{
+				robots[i].update();
+			}
+			else
+			{
+				robots[i].next_pos = make_pair(-1, -1);
+				robots[i].now_dir = -1;
+			}
+		}
+		else//有用的机器人
 		{
 			if (robots[i].status == 1)
 			{
@@ -200,14 +219,7 @@ void Solver::action()
 				}
 				if (robots[i].update())
 				{
-					if (robots[i].berth_id == boats[berths[robots[i].berth_id].BoatId].berthId_1)
-					{
-						boats[berths[robots[i].berth_id].BoatId].berthId_1_num++;
-					}
-					else
-					{
-						boats[berths[robots[i].berth_id].BoatId].berthId_2_num++;
-					}
+					boats[berths[robots[i].berth_id].BoatId].berthId_1_num++;
 				}
 			}
 		}
@@ -275,9 +287,7 @@ void Solver::getMatchTmp()
 		B.push_back(berths[boats[i].berthId_1].pos);
 		tmp.push_back(make_pair(i, boats[i].berthId_1));
 	}
-
 	vector<pair<int, int>> match_tmp_f = findBijectiveMapping(ground, A_positions, B);//机器人位置 港口id 索引
-
 	for (int i = 0; i < match_tmp_f.size(); i++)
 	{
 		for (int j = 0; j < tmp.size(); j++)
@@ -322,82 +332,12 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 
 void Solver::get_Boat_Berth_match()
 {
-	vector<int> time_berth;
-	int x = 0;
-	for (int i = 0; i < berth_num; i++)
+	for (int i = 0; i < boat_num; i++)
 	{
-		time_berth.push_back(berths[i].time);
-	}
-	sort(time_berth.begin(), time_berth.end());
-	for (int i = 0; i < berth_num / 2; i++, x++)
-	{
-		int num1 = time_berth[i];
-		int num2 = time_berth[berth_num - i - 1];
-		int index1 = 0;
-		int index2 = 0;
-		for (int j = 0; j < berth_num; j++)
-		{
-			if (berths[j].time == num1 && berths[j].BoatId == -1)
-			{
-				berths[j].BoatId = x;
-				index1 = j;
-				break;
-			}
-		}
-		for (int j = 0; j < berth_num; j++)
-		{
-			if (berths[j].time == num2 && berths[j].BoatId == -1)
-			{
-				berths[j].BoatId = x;
-				index2 = j;
-				break;
-			}
-		}
-		double full_time_1 = (double)boat_capacity / (double)berths[index1].speed;
-		double full_time_2 = (double)boat_capacity / (double)berths[index2].speed;
-		double time_1 = 2 * berths[index1].time + full_time_1;
-		double time_2 = 2 * berths[index2].time + full_time_2;
-
-		if (time_1 < time_2)
-		{
-			boats[i].berthId_1 = index1;
-			boats[i].berthId_2 = index2;
-			boats[i].berthId_1_speed = berths[index1].speed;
-			boats[i].berthId_2_speed = berths[index2].speed;
-			boats[i].berthId_1_time = berths[index1].time;
-			boats[i].berthId_2_time = berths[index2].time;
-		}
-		else if (time_1 > time_2)
-		{
-			boats[i].berthId_1 = index2;
-			boats[i].berthId_2 = index1;
-			boats[i].berthId_1_speed = berths[index2].speed;
-			boats[i].berthId_2_speed = berths[index1].speed;
-			boats[i].berthId_1_time = berths[index2].time;
-			boats[i].berthId_2_time = berths[index1].time;
-		}
-		else
-		{
-			if (berths[index1].speed > berths[index2].speed)
-			{
-				boats[i].berthId_1 = index1;
-				boats[i].berthId_2 = index2;
-				boats[i].berthId_1_speed = berths[index1].speed;
-				boats[i].berthId_2_speed = berths[index2].speed;
-				boats[i].berthId_1_time = berths[index1].time;
-				boats[i].berthId_2_time = berths[index2].time;
-			}
-			else
-			{
-				boats[i].berthId_1 = index2;
-				boats[i].berthId_2 = index1;
-				boats[i].berthId_1_speed = berths[index2].speed;
-				boats[i].berthId_2_speed = berths[index1].speed;
-				boats[i].berthId_1_time = berths[index2].time;
-				boats[i].berthId_2_time = berths[index1].time;
-			}
-		}
-		using_berth.push_back(boats[i].berthId_1);
+		boats[i].berthId_1 = using_berth[i];
+		boats[i].berthId_1_speed = berths[using_berth[i]].speed;
+		boats[i].berthId_1_time = berths[using_berth[i]].time;
+		berths[using_berth[i]].BoatId = i;
 	}
 }
 
@@ -412,13 +352,13 @@ void Solver::check_error()
 	vector<pair<int, int>> error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
 	vector<pair<int, int>> error_3 = check_error_for_berth(now_pos, next_point_for_Robots);
 	vector<pair<int, int>> error = merge_vectors(error_1, error_2);
-	error = merge_vectors(error_3, error);
+	//error = merge_vectors(error_3, error);
 	while (!error.empty())
 	{
 		int error_robot_id_1 = min(error[0].first, error[0].second);
 		int error_robot_id_2 = max(error[0].first, error[0].second);
 		error.erase(error.begin());
-		if ((ifHere(error_3, make_pair(error_robot_id_1, error_robot_id_2)) || ifHere(error_3, make_pair(error_robot_id_2, error_robot_id_1))) || error_robot_id_1 != error_robot_id_2 && next_point_for_Robots[error_robot_id_2].first != -1 && next_point_for_Robots[error_robot_id_2].second != -1 && next_point_for_Robots[error_robot_id_1].first != -1 && next_point_for_Robots[error_robot_id_1].second != -1)
+		if (error_robot_id_1 != error_robot_id_2 && next_point_for_Robots[error_robot_id_2].first != -1 && next_point_for_Robots[error_robot_id_2].second != -1 && next_point_for_Robots[error_robot_id_1].first != -1 && next_point_for_Robots[error_robot_id_1].second != -1)
 		{
 			//真冲突了
 			//尝试用第一个机器人解决冲突
@@ -431,6 +371,21 @@ void Solver::check_error()
 			{
 				bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
 			}
+		}
+	}
+	while (!error_3.empty())
+	{
+		int error_robot_id_1 = error_3[0].first;
+		int error_robot_id_2 = error_3[0].second;
+		error_3.erase(error_3.begin());
+		bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
+		if (num1_success)
+		{
+			continue;
+		}
+		else
+		{
+			bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
 		}
 	}
 	error_1.clear();
@@ -542,4 +497,151 @@ bool Solver::ifHere(const vector<pair<int, int>>& here, const pair<int, int>& go
 		}
 	}
 	return false;
+}
+
+void Solver::get_berths()
+{
+	vector<vector<pair<int, int>>> ans = partitionGround(ground);
+	sort(ans.begin(), ans.end(), [](const vector<pair<int, int>>& a, const vector<pair<int, int>>& b) {
+		return a.size() > b.size();
+		});
+	vector<vector<int>> berths_all;
+	vector<vector<int>> robots_all;
+	vector<int> del;
+	for (int i = 0; i < ans.size(); i++)
+	{
+		bool if_del = true;
+		for (int j = 0; j < berth_num; j++)
+		{
+			pair<int, int> pos_tmp = berths[j].pos;
+			for (int k = 0; k < ans[i].size(); k++)
+			{
+				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				{
+					if_del = false;
+					break;
+				}
+			}
+		}
+		if (if_del)
+		{
+			del.push_back(i);
+		}
+	}
+	removeIndices(ans, del);
+	del.clear();
+	for (int i = 0; i < ans.size(); i++)
+	{
+		vector<int> berths_tmp;
+		vector<int> robots_tmp;
+		for (int j = 0; j < berth_num; j++)
+		{
+			pair<int, int> pos_tmp = berths[j].pos;
+			for (int k = 0; k < ans[i].size(); k++)
+			{
+				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				{
+					berths_tmp.push_back(j);
+					break;
+				}
+			}
+		}
+		for (int j = 0; j < robot_num; j++)
+		{
+			pair<int, int> pos_tmp = A_positions[j];
+			for (int k = 0; k < ans[i].size(); k++)
+			{
+				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				{
+					robots_tmp.push_back(j);
+					break;
+				}
+			}
+		}
+		berths_all.push_back(berths_tmp);
+		robots_all.push_back(robots_tmp);
+	}
+	int count = 0;
+	for (int i = 0; i < berths_all.size(); i++)
+	{
+		vector<int> ber_tmp = berths_all[i];
+		vector<int> rob_tmp = robots_all[i];
+		for (int j = 0; j < ber_tmp.size(); j++)
+		{
+			int if_has_robot = false;//是否有机器人能到港口
+			for (int k = 0; k < rob_tmp.size(); k++)
+			{
+				vector<int> path_tmp = findShortestPath(ground, berths[ber_tmp[j]].pos, A_positions[rob_tmp[k]]);
+				if (path_tmp.size() > 0)
+				{
+					if_has_robot = true;
+					break;
+				}
+			}
+			if (!if_has_robot)
+			{
+				del.push_back(j);
+			}
+		}
+		removeIndices_for_3(berths_all[i], del);
+		del.clear();
+		sort(berths_all[i].begin(), berths_all[i].end(), [this](const int& a, const int& b) {
+			return tool_get_berths(a, b);
+			});
+	}
+	for (int i = 0; i < berths_all.size(); i++)
+	{
+		if (berths_all[i].empty())
+		{
+			del.push_back(i);
+		}
+	}
+	removeIndices_for_2(berths_all, del);
+	del.clear();
+	vector<int> can_using;
+	for (int i = 0; i < berths_all.size(); i++)
+	{
+		for (int j = 0; j < berths_all[i].size(); j++)
+		{
+			can_using.push_back(berths_all[i][j]);
+		}
+	}
+	for (int i = 0; i < berths_all.size(); i++)
+	{
+		using_berth.push_back(berths_all[i][0]);
+		count++;
+	}
+	if (count < 5)
+	{
+		int need = 5 - count;
+		sort(can_using.begin(), can_using.end(), [this](const int& a, const int& b) {
+			return tool_get_berths(a, b);
+			});
+		for (int i = 0; i < can_using.size(); i++)
+		{
+			if (find(using_berth.begin(), using_berth.end(), can_using[i]) != using_berth.end())
+			{
+				del.push_back(i);
+			}
+		}
+		removeIndices_for_3(can_using, del);
+		del.clear();
+		for (int i = 0; i < min(need, (int)can_using.size()); i++)
+		{
+			for (int j = 0; j < can_using.size(); j++)
+			{
+				if (find(using_berth.begin(), using_berth.end(), can_using[j]) == using_berth.end())
+				{
+					using_berth.push_back(can_using[j]);
+					count++;
+					break;
+				}
+			}
+		}
+	}
+}
+
+bool Solver::tool_get_berths(const int& a, const int& b)
+{
+	return berths[a].price > berths[b].price;
 }

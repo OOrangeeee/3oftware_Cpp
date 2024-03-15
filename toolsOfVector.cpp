@@ -14,3 +14,42 @@ vector<pair<int, int>> merge_vectors(const vector<pair<int, int>>& vec1, const v
 	vector<pair<int, int>> merged_vector(unique_elements.begin(), unique_elements.end());
 	return merged_vector;
 }
+
+void removeIndices(vector<vector<pair<int, int>>>& r, vector<int>& indices) 
+{
+    sort(indices.begin(), indices.end());
+    for (int i = indices.size() - 1; i >= 0; --i) 
+	{
+        int indexToRemove = indices[i];
+        if (indexToRemove >= 0 && indexToRemove < r.size()) 
+		{
+            r.erase(r.begin() + indexToRemove);
+        }
+    }
+}
+
+void removeIndices_for_2(vector<vector<int>>& r, vector<int>& indices)
+{
+	sort(indices.begin(), indices.end());
+	for (int i = indices.size() - 1; i >= 0; --i)
+	{
+		int indexToRemove = indices[i];
+		if (indexToRemove >= 0 && indexToRemove < r.size())
+		{
+			r.erase(r.begin() + indexToRemove);
+		}
+	}
+}
+
+void removeIndices_for_3(vector<int>& r, vector<int>& indices)
+{
+	sort(indices.begin(), indices.end());
+	for (int i = indices.size() - 1; i >= 0; --i)
+	{
+		int indexToRemove = indices[i];
+		if (indexToRemove >= 0 && indexToRemove < r.size())
+		{
+			r.erase(r.begin() + indexToRemove);
+		}
+	}
+}
