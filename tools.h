@@ -9,6 +9,8 @@
 #include <set>
 #include <algorithm>
 #include <stack>
+#include <random>
+#include <chrono>
 using namespace std;
 vector<int> findShortestPath(vector<vector<char>>& map, pair<int, int> start, pair<int, int> end);
 vector<pair<int, int>> findBijectiveMapping(vector<vector<char>>& map, vector<pair<int, int>>& groupA, vector<pair<int, int>>& groupB);
@@ -20,6 +22,7 @@ void removeIndices(vector<vector<pair<int, int>>>& r, vector<int>& indices);
 void removeIndices_for_2(vector<vector<int>>& r, vector<int>& indices);
 void removeIndices_for_3(vector<int>& r, vector<int>& indices);
 void removeIndices_for_4(vector<pair<int, int>>& r, vector<int>& indices);
+int getRandomNumber(int a, int b);
 
 
 #ifndef SORTED_LIST_H

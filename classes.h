@@ -81,7 +81,7 @@ public:
 	Robot();
 
 	//获取回来的路径
-	void resverPath();
+	void reversePath();
 
 	//初始化路径去港口
 	void initPath(const vector<int>& path);
@@ -178,6 +178,7 @@ public:
 	vector<int> using_berth;
 	double berths_dist;
 	vector<int> berths_busy;
+	vector<vector<pair<int, int>>> parts;
 
 	//对象
 	vector<Robot> robots;

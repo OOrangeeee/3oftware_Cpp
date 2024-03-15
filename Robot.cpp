@@ -39,7 +39,7 @@ Robot::Robot()
 	pre_error = 0;
 }
 
-void Robot::resverPath()
+void Robot::reversePath()
 {
 	back_path = go_path;
 	reverse(back_path.begin(), back_path.end());
@@ -66,6 +66,32 @@ void Robot::initPath(const vector<int>& path)
 
 bool Robot::update()
 {
+	if (pre_error >= 400)
+	{
+		vector<int> tmp_path = findShortestPath(ground, pos, berth_pos);
+		vector<int> tmp_path_back = tmp_path;
+		reverse(tmp_path_back.begin(), tmp_path_back.end());
+		for (int i = 0; i < tmp_path_back.size(); i++)
+		{
+			if (tmp_path_back[i] == 0)
+				tmp_path_back[i] = 1;
+			else if (tmp_path_back[i] == 1)
+				tmp_path_back[i] = 0;
+			else if (tmp_path_back[i] == 2)
+				tmp_path_back[i] = 3;
+			else
+				tmp_path_back[i] = 2;
+		}
+		for (int j = tmp_path_back.size() - 1; j >= 0; j--)
+		{
+			path.insert(path.begin(), tmp_path_back[j]);
+		}
+		for (int j = tmp_path.size() - 1; j >= 0; j--)
+		{
+			path.insert(path.begin(), tmp_path[j]);
+		}
+		pre_error = 0;
+	}
 	if (pos == next_pos)
 	{
 		next_pos = make_pair(-1, -1);
@@ -120,6 +146,7 @@ void Robot::get()
 	path.clear();
 	path = back_path;
 	go_path.clear();
+	pre_error = 0;
 	//next_pos = make_pair(-500, -500);
 }
 
@@ -130,6 +157,7 @@ void Robot::pull()
 	path.clear();
 	//放下后获取任务
 	back_path.clear();
+	pre_error = 0;
 
 }
 
@@ -138,7 +166,7 @@ void Robot::pull()
 //	if (!future_path.empty())
 //	{
 //		go_path = future_path;
-//		resverPath();
+//		reversePath();
 //		path = go_path;
 //		future_path.clear();
 //	}
@@ -239,10 +267,12 @@ bool Robot::solve_error(pair<int, int> other_pos)
 		}
 		if (plan_go == -1)
 		{
+			pre_error++;
 			return false;
 		}
 		path.insert(path.begin(), plan_back);
 		path.insert(path.begin(), plan_go);
+		pre_error++;
 		return true;
 	}
 	else

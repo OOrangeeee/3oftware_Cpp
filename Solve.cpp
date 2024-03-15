@@ -202,7 +202,8 @@ void Solver::action()
 				{
 					robots[RobotId].path = tmp_path;
 					robots[RobotId].go_path = tmp_path;
-					robots[RobotId].resverPath();
+					robots[RobotId].reversePath();
+					robots[RobotId].pre_error = 0;
 				}
 			}
 		}
@@ -400,8 +401,63 @@ void Solver::check_error()
 	removeIndices_for_4(error, del);
 	del.clear();
 	//error = merge_vectors(error_3, error);
+	int count = 0;
 	while (!error.empty() || !error_3.empty())
 	{
+		if (count > 100)
+		{
+			for (int i = 0; i < using_berth.size(); i++)
+			{
+				pair<int, int> to_pos;
+				for (int j = 0; j < parts.size(); j++)
+				{
+					if (find(parts[j].begin(), parts[j].end(), robots[using_berth[i]].pos)!= parts[j].end())
+					{
+						int num = getRandomNumber(0, parts[j].size());
+						to_pos = parts[j][num];
+					}
+				}
+				vector<int> tmp_path = findShortestPath(ground, robots[using_berth[i]].pos, to_pos);
+				vector<int> tmp_path_back = tmp_path;
+				reverse(tmp_path_back.begin(), tmp_path_back.end());
+				for (int j = 0; j < tmp_path_back.size(); j++)
+				{
+					if (tmp_path_back[j] == 0)
+						tmp_path_back[j] = 1;
+					else if (tmp_path_back[j] == 1)
+						tmp_path_back[j] = 0;
+					else if (tmp_path_back[j] == 2)
+						tmp_path_back[j] = 3;
+					else
+						tmp_path_back[j] = 2;
+				}
+				for (int j = tmp_path_back.size() - 1; j >= 0; j--)
+				{
+					robots[using_berth[i]].path.insert(robots[using_berth[i]].path.begin(), tmp_path_back[j]);
+				}
+				for (int j = tmp_path.size() - 1; j >= 0; j--)
+				{
+					robots[using_berth[i]].path.insert(robots[using_berth[i]].path.begin(), tmp_path[j]);
+				}
+				robots[using_berth[i]].pre_error = 0;
+			}
+			get_next_pos();
+			error_1 = findAllPairDuplicates(next_point_for_Robots);
+			error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
+			error_3 = check_error_for_berth(now_pos, next_point_for_Robots);
+			error = merge_vectors(error_1, error_2);
+			for (int i = 0; i < error.size(); i++)
+			{
+				int error_robot_id_1 = min(error[0].first, error[0].second);
+				int error_robot_id_2 = max(error[0].first, error[0].second);
+				if (error_robot_id_1 == error_robot_id_2 || next_point_for_Robots[error_robot_id_2].first == -1 || next_point_for_Robots[error_robot_id_2].second == -1 || next_point_for_Robots[error_robot_id_1].first == -1 || next_point_for_Robots[error_robot_id_1].second == -1)
+				{
+					del.push_back(i);
+				}
+			}
+			removeIndices_for_4(error, del);
+			del.clear();
+		}
 		while (!error.empty())
 		{
 			int error_robot_id_1 = min(error[0].first, error[0].second);
@@ -414,45 +470,31 @@ void Solver::check_error()
 				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
 				if (num1_success)
 				{
+					count++;
 					continue;
 				}
 				else
 				{
+					count++;
 					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
 				}
 			}
 		}
 		while (!error_3.empty())
 		{
-			if (errno % 2 == 0)
+			int error_robot_id_1 = error_3[0].first;
+			int error_robot_id_2 = error_3[0].second;
+			error_3.erase(error_3.begin());
+			bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
+			if (num1_success)
 			{
-				int error_robot_id_1 = error_3[0].first;
-				int error_robot_id_2 = error_3[0].second;
-				error_3.erase(error_3.begin());
-				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
-				if (num1_success)
-				{
-					continue;
-				}
-				else
-				{
-					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
-				}
+				count++;
+				continue;
 			}
 			else
 			{
-				int error_robot_id_1 = error_3[0].second;
-				int error_robot_id_2 = error_3[0].first;;
-				error_3.erase(error_3.begin());
-				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
-				if (num1_success)
-				{
-					continue;
-				}
-				else
-				{
-					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
-				}
+				count++;
+				bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
 			}
 			error_no++;
 		}
@@ -587,22 +629,22 @@ bool Solver::ifHere(const vector<pair<int, int>>& here, const pair<int, int>& go
 
 void Solver::get_berths()
 {
-	vector<vector<pair<int, int>>> ans = partitionGround(ground);
-	sort(ans.begin(), ans.end(), [](const vector<pair<int, int>>& a, const vector<pair<int, int>>& b) {
+	parts = partitionGround(ground);
+	sort(parts.begin(), parts.end(), [](const vector<pair<int, int>>& a, const vector<pair<int, int>>& b) {
 		return a.size() > b.size();
 		});
 	vector<vector<int>> berths_all;
 	vector<vector<int>> robots_all;
 	vector<int> del;
-	for (int i = 0; i < ans.size(); i++)
+	for (int i = 0; i < parts.size(); i++)
 	{
 		bool if_del = true;
 		for (int j = 0; j < berth_num; j++)
 		{
 			pair<int, int> pos_tmp = berths[j].pos;
-			for (int k = 0; k < ans[i].size(); k++)
+			for (int k = 0; k < parts[i].size(); k++)
 			{
-				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				if (parts[i][k].first == pos_tmp.first && parts[i][k].second == pos_tmp.second)
 				{
 					if_del = false;
 					break;
@@ -614,18 +656,18 @@ void Solver::get_berths()
 			del.push_back(i);
 		}
 	}
-	removeIndices(ans, del);
+	removeIndices(parts, del);
 	del.clear();
-	for (int i = 0; i < ans.size(); i++)
+	for (int i = 0; i < parts.size(); i++)
 	{
 		vector<int> berths_tmp;
 		vector<int> robots_tmp;
 		for (int j = 0; j < berth_num; j++)
 		{
 			pair<int, int> pos_tmp = berths[j].pos;
-			for (int k = 0; k < ans[i].size(); k++)
+			for (int k = 0; k < parts[i].size(); k++)
 			{
-				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				if (parts[i][k].first == pos_tmp.first && parts[i][k].second == pos_tmp.second)
 				{
 					berths_tmp.push_back(j);
 					break;
@@ -635,9 +677,9 @@ void Solver::get_berths()
 		for (int j = 0; j < robot_num; j++)
 		{
 			pair<int, int> pos_tmp = A_positions[j];
-			for (int k = 0; k < ans[i].size(); k++)
+			for (int k = 0; k < parts[i].size(); k++)
 			{
-				if (ans[i][k].first == pos_tmp.first && ans[i][k].second == pos_tmp.second)
+				if (parts[i][k].first == pos_tmp.first && parts[i][k].second == pos_tmp.second)
 				{
 					robots_tmp.push_back(j);
 					break;
