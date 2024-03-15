@@ -19,6 +19,7 @@ vector<vector<pair<int, int>>> partitionGround(vector<vector<char>>& ground);
 void removeIndices(vector<vector<pair<int, int>>>& r, vector<int>& indices);
 void removeIndices_for_2(vector<vector<int>>& r, vector<int>& indices);
 void removeIndices_for_3(vector<int>& r, vector<int>& indices);
+void removeIndices_for_4(vector<pair<int, int>>& r, vector<int>& indices);
 
 
 #ifndef SORTED_LIST_H

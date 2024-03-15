@@ -176,14 +176,20 @@ public:
 	vector<pair<pair<int, int>, int>> A_roubt;//位置到机器人编号匹配
 	vector<vector<char>> ground;//地图
 	vector<int> using_berth;
+	double berths_dist;
+	vector<int> berths_busy;
+
 	//对象
 	vector<Robot> robots;
 	vector<Berth> berths;
 	vector<Boat> boats;
+
 	//每帧更改
 	int money;
 	int id;
 	int new_num;
+	int error_no;
+
 	vector<pair<int, int>> next_point_for_Robots;
 	//状态
 	bool if_getMatch;

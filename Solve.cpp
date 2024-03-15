@@ -15,7 +15,9 @@ Solver::Solver()
 	boat_capacity = 0;
 	id = 0;
 	new_num = 0;
+	berths_dist = 0;
 	if_getMatch = false;
+	error_no = 0;
 }
 
 //初始化程序
@@ -34,6 +36,9 @@ void Solver::init()
 		}
 		this->ground.push_back(tmp);
 	}
+
+	//存下所有的A的位置
+	findAndReplaceA(ground);
 
 	//初始化机器人
 	for (int i = 0; i < robot_num; i++)
@@ -75,9 +80,21 @@ void Solver::init()
 	{
 		berths[i].price = 2 * berths[i].time + (boat_capacity / berths[i].speed);
 	}
-	//存下所有的A的位置
-	findAndReplaceA(ground);
+
 	get_berths();
+
+	for (int i = 0; i < using_berth.size(); i++)
+	{
+		for (int j = i + 1; j < using_berth.size(); j++)
+		{
+			int from = using_berth[i];
+			int to = using_berth[j];
+			vector<int> path = findShortestPath(ground, berths[from].pos, berths[to].pos);
+			berths_dist += path.size();
+		}
+	}
+	berths_dist /= 10;
+
 	get_Boat_Berth_match();
 
 
@@ -177,7 +194,7 @@ void Solver::action()
 		for (int j = 0; j < berths[i].RobotIdS.size(); j++)
 		{
 			int RobotId = berths[i].RobotIdS[j];
-			if (!berths[i].Good_future.empty() && robots[RobotId].path.empty() && robots[RobotId].if_inBerth && !robots[RobotId].if_has)
+			if (!berths[i].Good_future.empty() && robots[RobotId].path.empty() && robots[RobotId].if_inBerth && !robots[RobotId].if_has && robots[RobotId].next_pos.first == -1 && robots[RobotId].now_dir == -1)
 			{
 				pair<int, int> now_pos_berth = robots[RobotId].berth_pos;
 				vector<int> tmp_path = berths[i].give_task(id, ground, now_pos_berth);
@@ -192,7 +209,6 @@ void Solver::action()
 	}
 
 	//指示机器人
-	get_next_pos();
 	check_error();
 	for (int i = 0; i < robot_num; i++)
 	{
@@ -306,6 +322,13 @@ void Solver::getMatchTmp()
 //读入新货物
 void Solver::getGood(pair<int, int> pos, int die_time, int val)
 {
+	berths_busy.clear();
+	for (int i = 0; i < using_berth.size(); i++)
+	{
+		berths_busy.push_back(berths[using_berth[i]].Good_future.size());
+	}
+	sort(berths_busy.begin(), berths_busy.end());
+	int tmp_busy = berths_busy[using_berth.size() / 2];
 	int min_dist = 1e7;
 	int berthId = -1;
 	vector<int> ans_path;
@@ -317,6 +340,13 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 		{
 			continue;
 		}
+		if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
+		{
+			min_dist = dist;
+			berthId = using_berth[i];
+			ans_path = tmp_path;
+			break;
+		}
 		if (dist < min_dist)
 		{
 			min_dist = dist;
@@ -327,6 +357,10 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	}
 	if (berthId == -1)
 		return;
+	if (min_dist > 1000)
+	{
+		return;
+	}
 	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, val / min_dist, ans_path));
 }
 
@@ -344,6 +378,7 @@ void Solver::get_Boat_Berth_match()
 void Solver::check_error()
 {
 	vector<pair<int, int>> now_pos;
+	get_next_pos();
 	for (int i = 0; i < robot_num; i++)
 	{
 		now_pos.push_back(robots[i].pos);
@@ -352,44 +387,95 @@ void Solver::check_error()
 	vector<pair<int, int>> error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
 	vector<pair<int, int>> error_3 = check_error_for_berth(now_pos, next_point_for_Robots);
 	vector<pair<int, int>> error = merge_vectors(error_1, error_2);
-	//error = merge_vectors(error_3, error);
-	while (!error.empty())
+	vector<int> del;
+	for (int i = 0; i < error.size(); i++)
 	{
-		int error_robot_id_1 = min(error[0].first, error[0].second);
-		int error_robot_id_2 = max(error[0].first, error[0].second);
-		error.erase(error.begin());
-		if (error_robot_id_1 != error_robot_id_2 && next_point_for_Robots[error_robot_id_2].first != -1 && next_point_for_Robots[error_robot_id_2].second != -1 && next_point_for_Robots[error_robot_id_1].first != -1 && next_point_for_Robots[error_robot_id_1].second != -1)
+		int error_robot_id_1 = min(error[i].first, error[i].second);
+		int error_robot_id_2 = max(error[i].first, error[i].second);
+		if (error_robot_id_1 == error_robot_id_2 || next_point_for_Robots[error_robot_id_2].first == -1 || next_point_for_Robots[error_robot_id_2].second == -1 || next_point_for_Robots[error_robot_id_1].first == -1 || next_point_for_Robots[error_robot_id_1].second == -1)
 		{
-			//真冲突了
-			//尝试用第一个机器人解决冲突
-			bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
-			if (num1_success)
+			del.push_back(i);
+		}
+	}
+	removeIndices_for_4(error, del);
+	del.clear();
+	//error = merge_vectors(error_3, error);
+	while (!error.empty() || !error_3.empty())
+	{
+		while (!error.empty())
+		{
+			int error_robot_id_1 = min(error[0].first, error[0].second);
+			int error_robot_id_2 = max(error[0].first, error[0].second);
+			error.erase(error.begin());
+			if (error_robot_id_1 != error_robot_id_2 && next_point_for_Robots[error_robot_id_2].first != -1 && next_point_for_Robots[error_robot_id_2].second != -1 && next_point_for_Robots[error_robot_id_1].first != -1 && next_point_for_Robots[error_robot_id_1].second != -1)
 			{
-				continue;
+				//真冲突了
+				//尝试用第一个机器人解决冲突
+				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
+				if (num1_success)
+				{
+					continue;
+				}
+				else
+				{
+					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
+				}
+			}
+		}
+		while (!error_3.empty())
+		{
+			if (errno % 2 == 0)
+			{
+				int error_robot_id_1 = error_3[0].first;
+				int error_robot_id_2 = error_3[0].second;
+				error_3.erase(error_3.begin());
+				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
+				if (num1_success)
+				{
+					continue;
+				}
+				else
+				{
+					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
+				}
 			}
 			else
 			{
-				bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
+				int error_robot_id_1 = error_3[0].second;
+				int error_robot_id_2 = error_3[0].first;;
+				error_3.erase(error_3.begin());
+				bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
+				if (num1_success)
+				{
+					continue;
+				}
+				else
+				{
+					bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
+				}
+			}
+			error_no++;
+		}
+		get_next_pos();
+		error_1 = findAllPairDuplicates(next_point_for_Robots);
+		error_2 = find_equal_pairs(now_pos, next_point_for_Robots);
+		error_3 = check_error_for_berth(now_pos, next_point_for_Robots);
+		error = merge_vectors(error_1, error_2);
+		for (int i = 0; i < error.size(); i++)
+		{
+			int error_robot_id_1 = min(error[0].first, error[0].second);
+			int error_robot_id_2 = max(error[0].first, error[0].second);
+			if (error_robot_id_1 == error_robot_id_2 || next_point_for_Robots[error_robot_id_2].first == -1 || next_point_for_Robots[error_robot_id_2].second == -1 || next_point_for_Robots[error_robot_id_1].first == -1 || next_point_for_Robots[error_robot_id_1].second == -1)
+			{
+				del.push_back(i);
 			}
 		}
-	}
-	while (!error_3.empty())
-	{
-		int error_robot_id_1 = error_3[0].first;
-		int error_robot_id_2 = error_3[0].second;
-		error_3.erase(error_3.begin());
-		bool num1_success = robots[error_robot_id_1].solve_error(robots[error_robot_id_2].pos);
-		if (num1_success)
-		{
-			continue;
-		}
-		else
-		{
-			bool num2_success = robots[error_robot_id_2].solve_error(robots[error_robot_id_1].pos);
-		}
+		removeIndices_for_4(error, del);
+		del.clear();
 	}
 	error_1.clear();
 	error_2.clear();
+	error_3.clear();
 	error.clear();
 	for (int i = 0; i < next_point_for_Robots.size(); i++)
 	{
@@ -643,5 +729,5 @@ void Solver::get_berths()
 
 bool Solver::tool_get_berths(const int& a, const int& b)
 {
-	return berths[a].price > berths[b].price;
+	return berths[a].price < berths[b].price;
 }
