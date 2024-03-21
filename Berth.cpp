@@ -7,6 +7,7 @@ Berth::Berth(int id, pair<int, int> pos, int time, int speed)
 	this->time = time;
 	this->speed = speed;
 	this->BoatId = -1;
+	part = -1;
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -23,6 +24,7 @@ Berth::Berth()
 	this->time = -1;
 	this->speed = -1;
 	this->BoatId = -1;
+	part = -1;
 }
 
 vector<int> Berth::give_task(int ID, vector<vector<char>> map, pair<int, int> now_pos_berth)

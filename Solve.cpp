@@ -148,21 +148,51 @@ void Solver::everyInput()
 void Solver::action()
 {
 	//布置任务
-	for (int i = 0; i < berth_num; i++)
+	for (int q = 0; q < using_berth.size(); q++)
 	{
+		int i = using_berth[q];
 		for (int j = 0; j < berths[i].RobotIdS.size(); j++)
 		{
 			int RobotId = berths[i].RobotIdS[j];
-			if (!berths[i].Good_future.empty() && robots[RobotId].path.empty() && robots[RobotId].if_inBerth && !robots[RobotId].if_has && robots[RobotId].next_pos.first == -1 && robots[RobotId].now_dir == -1)
+			if (robots[RobotId].path.empty() && robots[RobotId].if_inBerth && !robots[RobotId].if_has && robots[RobotId].next_pos.first == -1 && robots[RobotId].now_dir == -1)
 			{
-				pair<int, int> now_pos_berth = robots[RobotId].berth_pos;
-				vector<int> tmp_path = berths[i].give_task(id, ground, now_pos_berth);
-				if (!tmp_path.empty())
+				if (berths[i].Good_future.empty())
 				{
-					robots[RobotId].path = tmp_path;
-					robots[RobotId].go_path = tmp_path;
-					robots[RobotId].reversePath();
-					robots[RobotId].pre_error = 0;
+					int p = berths[i].part;
+					int choice_id = -1;
+					int min_dist = 1e7;
+					for (int k = 0; k < berths_all[p].size(); k++)
+					{
+						int now_id = berths_all[p][k];
+						if (berths[now_id].Good_future.size() < 2)
+						{
+							continue;
+						}
+						int now_dist = manhattanDistance(berths[i].pos, berths[now_id].pos);
+						if (now_dist < min_dist)
+						{
+							min_dist = now_dist;
+							choice_id = now_id;
+						}
+					}
+					if (choice_id != -1)
+					{
+						Good tmp_good = berths[choice_id].Good_future[0];
+						berths[choice_id].Good_future.removeAt(0);
+						berths[i].Good_future.insert(tmp_good);
+					}
+				}
+				if (!berths[i].Good_future.empty())
+				{
+					pair<int, int> now_pos_berth = robots[RobotId].berth_pos;
+					vector<int> tmp_path = berths[i].give_task(id, ground, now_pos_berth);
+					if (!tmp_path.empty())
+					{
+						robots[RobotId].path = tmp_path;
+						robots[RobotId].go_path = tmp_path;
+						robots[RobotId].reversePath();
+						robots[RobotId].pre_error = 0;
+					}
 				}
 			}
 		}
@@ -306,8 +336,25 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	//int tmp_busy = berths_busy[using_berth.size() / 2];
 	int min_dist = 1e7;
 	int berthId = -1;
+	int p = -1;
+	for (int i = 0; i < parts.size(); i++)
+	{
+		if (find(parts[i].begin(), parts[i].end(), pos) != parts[i].end())
+		{
+			p = i;
+			break;
+		}
+	}
+	if (p == -1)
+	{
+		return;
+	}
 	for (int i = 0; i < using_berth.size(); i++)
 	{
+		if (berths[using_berth[i]].part != p)
+		{
+			continue;
+		}
 		int dist = manhattanDistance(pos, berths[using_berth[i]].pos);
 		//if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
 		//{
@@ -622,8 +669,6 @@ void Solver::get_berths()
 	sort(parts.begin(), parts.end(), [](const vector<pair<int, int>>& a, const vector<pair<int, int>>& b) {
 		return a.size() > b.size();
 		});
-	vector<vector<int>> berths_all;
-	vector<vector<int>> robots_all;
 	vector<int> del;
 	//删除没有港口或者没有机器人的板块，该板块不管
 	for (int i = 0; i < parts.size(); i++)
@@ -799,6 +844,15 @@ void Solver::get_berths()
 			using_berth.push_back(i);
 		}
 	}
+
+	for (int i = 0; i < berths_all.size(); i++)
+	{
+		for (int j = 0; j < berths_all[i].size(); j++)
+		{
+			berths[berths_all[i][j]].part = i;
+		}
+	}
+
 }
 
 bool Solver::tool_get_berths(const int& a, const int& b)

@@ -74,6 +74,7 @@ public:
 	int status;
 	bool if_initPath;
 	bool if_inBerth;
+	bool if_chuchai;
 
 	//构造函数
 	Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int> goal_pos, int berth_id, pair<int, int> berth_pos, vector<vector<char>> ground);
@@ -123,6 +124,7 @@ public:
 	vector<pair<int, int>> poses;
 	vector<pair<int, int>> has_poses;
 	double price;
+	int part;
 
 	Berth(int id, pair<int, int> pos, int time, int speed);
 	Berth();
@@ -178,6 +180,8 @@ public:
 	double berths_dist;
 	vector<int> berths_busy;
 	vector<vector<pair<int, int>>> parts;
+	vector<vector<int>> berths_all;
+	vector<vector<int>> robots_all;
 
 	//对象
 	vector<Robot> robots;

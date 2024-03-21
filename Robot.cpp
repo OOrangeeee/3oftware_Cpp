@@ -12,6 +12,7 @@ Robot::Robot(int id, pair<int, int> pos, bool if_has, int status, pair<int, int>
 	this->ground = ground;
 	if_initPath = false;
 	if_inBerth = false;
+	if_chuchai = false;
 	path.clear();
 	go_path.clear();
 	back_path.clear();
@@ -31,6 +32,7 @@ Robot::Robot()
 	this->berth_pos = make_pair(-1, -1);
 	if_initPath = false;
 	if_inBerth = false;
+	if_chuchai = false;
 	path.clear();
 	go_path.clear();
 	back_path.clear();
