@@ -323,13 +323,13 @@ void Solver::getMatchTmp()
 //读入新货物
 void Solver::getGood(pair<int, int> pos, int die_time, int val)
 {
-	berths_busy.clear();
-	for (int i = 0; i < using_berth.size(); i++)
-	{
-		berths_busy.push_back(berths[using_berth[i]].Good_future.size());
-	}
-	sort(berths_busy.begin(), berths_busy.end());
-	int tmp_busy = berths_busy[using_berth.size() / 2];
+	//berths_busy.clear();
+	//for (int i = 0; i < using_berth.size(); i++)
+	//{
+	//	berths_busy.push_back(berths[using_berth[i]].Good_future.size());
+	//}
+	//sort(berths_busy.begin(), berths_busy.end());
+	//int tmp_busy = berths_busy[using_berth.size() / 2];
 	int min_dist = 1e7;
 	int berthId = -1;
 	vector<int> ans_path;
@@ -341,13 +341,13 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 		{
 			continue;
 		}
-		if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
-		{
-			min_dist = dist;
-			berthId = using_berth[i];
-			ans_path = tmp_path;
-			break;
-		}
+		//if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
+		//{
+		//	min_dist = dist;
+		//	berthId = using_berth[i];
+		//	ans_path = tmp_path;
+		//	break;
+		//}
 		if (dist < min_dist)
 		{
 			min_dist = dist;
@@ -629,13 +629,16 @@ bool Solver::ifHere(const vector<pair<int, int>>& here, const pair<int, int>& go
 
 void Solver::get_berths()
 {
+	//划分区域
 	parts = partitionGround(ground);
+	//按照面积大小排序
 	sort(parts.begin(), parts.end(), [](const vector<pair<int, int>>& a, const vector<pair<int, int>>& b) {
 		return a.size() > b.size();
 		});
 	vector<vector<int>> berths_all;
 	vector<vector<int>> robots_all;
 	vector<int> del;
+	//删除没有港口的板块，该板块不管
 	for (int i = 0; i < parts.size(); i++)
 	{
 		bool if_del = true;
@@ -658,6 +661,7 @@ void Solver::get_berths()
 	}
 	removeIndices(parts, del);
 	del.clear();
+	//每个板块的机器人和港口编号存入数组
 	for (int i = 0; i < parts.size(); i++)
 	{
 		vector<int> berths_tmp;
