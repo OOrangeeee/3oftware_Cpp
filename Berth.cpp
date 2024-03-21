@@ -33,40 +33,7 @@ vector<int> Berth::give_task(int ID, vector<vector<char>> map, pair<int, int> no
 	{
 		Good good = Good_future[0];
 		Good_future.removeAt(0);
-		int x = pos.first - now_pos_berth.first;
-		int y = pos.second - now_pos_berth.second;
-		if (x < 0)
-		{
-			for (int i = 0; i < -1 * (x); i++)
-			{
-				task_path.push_back(2);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < x; i++)
-			{
-				task_path.push_back(3);
-			}
-		}
-		if (y < 0)
-		{
-			for (int i = 0; i < -1 * (y); i++)
-			{
-				task_path.push_back(1);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < y; i++)
-			{
-				task_path.push_back(0);
-			}
-		}
-		for (int i = 0; i < good.path.size(); i++)
-		{
-			task_path.push_back(good.path[i]);
-		}
+		task_path = findShortestPath(map, now_pos_berth, good.pos);
 		if (ID + task_path.size() + 2 >= good.dietime)
 		{
 			task_path.clear();

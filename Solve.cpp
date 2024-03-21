@@ -80,29 +80,8 @@ void Solver::init()
 	{
 		berths[i].price = 2 * berths[i].time + (boat_capacity / berths[i].speed);
 	}
-
-	get_berths();
-
-	for (int i = 0; i < using_berth.size(); i++)
-	{
-		for (int j = i + 1; j < using_berth.size(); j++)
-		{
-			int from = using_berth[i];
-			int to = using_berth[j];
-			vector<int> path = findShortestPath(ground, berths[from].pos, berths[to].pos);
-			berths_dist += path.size();
-		}
-	}
-	berths_dist /= 10;
-
-	get_Boat_Berth_match();
-
-
 	char ok[5];
 	scanf("%s", ok);
-
-
-	getMatchTmp();
 	printf("OK\n");
 	fflush(stdout);
 }
@@ -110,6 +89,11 @@ void Solver::init()
 //每一帧的输入
 void Solver::everyInput()
 {
+	if (cin.eof())
+	{
+		exit(0);
+	}
+
 	//读取帧数，钱数
 	scanf("%d %d", &id, &money);
 
@@ -138,35 +122,14 @@ void Solver::everyInput()
 		robots[i].if_has = if_has_int == 1 ? true : false;
 		robots[i].pos = now_pos;
 		robots[i].status = status;
-		if (!if_getMatch)
-		{
-			A_roubt.push_back(make_pair(now_pos, i));
-		}
 	}
 
 	//把能对应的港口和机器人对应起来
 	if (!if_getMatch)
 	{
-		get_match();
-		//把能对应的机器人和港口保存起来
-		for (int i = 0; i < robot_num; i++)
-		{
-			for (int j = 0; j < match_rb.size(); j++)
-			{
-				if (i == match_rb[j].first)
-				{
-					robots[i].berth_id = match_rb[j].second;
-					robots[i].berth_pos = getBerthPos(match_rb[j].second);
-				}
-			}
-			for (int j = 0; j < match_br.size(); j++)
-			{
-				if (i == match_br[j].first)
-				{
-					berths[i].RobotIdS.push_back(match_br[j].second);
-				}
-			}
-		}
+		get_berths();
+		get_Boat_Berth_match();
+		if_getMatch = true;
 	}
 
 	//读取船信息
@@ -184,10 +147,6 @@ void Solver::everyInput()
 
 void Solver::action()
 {
-	if (id == 8083)
-	{
-		int x;
-	}
 	//布置任务
 	for (int i = 0; i < berth_num; i++)
 	{
@@ -236,7 +195,15 @@ void Solver::action()
 				}
 				if (robots[i].update())
 				{
-					boats[berths[robots[i].berth_id].BoatId].berthId_1_num++;
+					int b_id = robots[i].berth_id;
+					if (boats[berths[b_id].BoatId].berthId_1 == b_id)
+					{
+						boats[berths[b_id].BoatId].berthId_1_num++;
+					}
+					else if (boats[berths[b_id].BoatId].berthId_2 != -1)
+					{
+						boats[berths[b_id].BoatId].berthId_2_num++;
+					}
 				}
 			}
 		}
@@ -248,9 +215,16 @@ void Solver::action()
 		boats[i].zhen = id;
 		if (boats[i].goal < 0 && boats[i].status == 1)
 		{
-			boats[i].ship(boats[i].berthId_1);
+			if (boats[i].berthId_2_num > 0 && boats[i].berthId_1_num == 0)
+			{
+				boats[i].ship(boats[i].berthId_2);
+			}
+			else
+			{
+				boats[i].ship(boats[i].berthId_1);
+			}
 		}
-		else if (boats[i].status == 1)
+		else if (boats[i].status == 1 && boats[i].berthId_1 != -1)
 		{
 			boats[i].update();
 		}
@@ -258,26 +232,26 @@ void Solver::action()
 
 }
 
-void Solver::get_match()
-{
-	for (int i = 0; i < match_tmp.size(); i++)
-	{
-		int index1 = match_tmp[i].first;
-		int index2 = match_tmp[i].second;
-		pair<int, int> tmp_pos = A_positions[index1];
-		for (int j = 0; j < A_roubt.size(); j++)
-		{
-			if (A_roubt[j].first.first == tmp_pos.first && A_roubt[j].first.second == tmp_pos.second)
-			{
-				int roubtId = A_roubt[j].second;
-				match_br.push_back(make_pair(index2, roubtId));
-				match_rb.push_back(make_pair(roubtId, index2));
-				break;
-			}
-		}
-	}
-	if_getMatch = true;
-}
+//void Solver::get_match()
+//{
+//	for (int i = 0; i < match_tmp.size(); i++)
+//	{
+//		int index1 = match_tmp[i].first;
+//		int index2 = match_tmp[i].second;
+//		pair<int, int> tmp_pos = A_positions[index1];
+//		for (int j = 0; j < A_roubt.size(); j++)
+//		{
+//			if (A_roubt[j].first.first == tmp_pos.first && A_roubt[j].first.second == tmp_pos.second)
+//			{
+//				int roubtId = A_roubt[j].second;
+//				match_br.push_back(make_pair(index2, roubtId));
+//				match_rb.push_back(make_pair(roubtId, index2));
+//				break;
+//			}
+//		}
+//	}
+//	if_getMatch = true;
+//}
 
 //找到所有A的位置，并更新地图
 void Solver::findAndReplaceA(vector<vector<char>>& ground)
@@ -294,29 +268,29 @@ void Solver::findAndReplaceA(vector<vector<char>>& ground)
 	this->A_positions = A_positions_tmp;
 }
 
-//给每个港口尽可能匹配一个机器人,此时得到的是港口ID到现有机器人位置的索引的对应
-void Solver::getMatchTmp()
-{
-	vector<pair<int, int>> B;
-	vector<pair<int, int>> tmp;
-	for (int i = 0; i < boats.size(); i++)
-	{
-		B.push_back(berths[boats[i].berthId_1].pos);
-		tmp.push_back(make_pair(i, boats[i].berthId_1));
-	}
-	vector<pair<int, int>> match_tmp_f = findBijectiveMapping(ground, A_positions, B);//机器人位置 港口id 索引
-	for (int i = 0; i < match_tmp_f.size(); i++)
-	{
-		for (int j = 0; j < tmp.size(); j++)
-		{
-			if (match_tmp_f[i].second == tmp[j].first)
-			{
-				match_tmp.push_back(make_pair(match_tmp_f[i].first, tmp[j].second));
-				break;
-			}
-		}
-	}
-}
+////给每个港口尽可能匹配一个机器人,此时得到的是港口ID到现有机器人位置的索引的对应
+//void Solver::getMatchTmp()
+//{
+//	vector<pair<int, int>> B;
+//	vector<pair<int, int>> tmp;
+//	for (int i = 0; i < boats.size(); i++)
+//	{
+//		B.push_back(berths[boats[i].berthId_1].pos);
+//		tmp.push_back(make_pair(i, boats[i].berthId_1));
+//	}
+//	vector<pair<int, int>> match_tmp_f = findBijectiveMapping(ground, A_positions, B);//机器人位置 港口id 索引
+//	for (int i = 0; i < match_tmp_f.size(); i++)
+//	{
+//		for (int j = 0; j < tmp.size(); j++)
+//		{
+//			if (match_tmp_f[i].second == tmp[j].first)
+//			{
+//				match_tmp.push_back(make_pair(match_tmp_f[i].first, tmp[j].second));
+//				break;
+//			}
+//		}
+//	}
+//}
 
 
 
@@ -332,15 +306,9 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	//int tmp_busy = berths_busy[using_berth.size() / 2];
 	int min_dist = 1e7;
 	int berthId = -1;
-	vector<int> ans_path;
 	for (int i = 0; i < using_berth.size(); i++)
 	{
-		vector<int> tmp_path = findShortestPath(ground, berths[using_berth[i]].pos, pos);
-		int dist = tmp_path.size();
-		if (dist == 0)
-		{
-			continue;
-		}
+		int dist = manhattanDistance(pos, berths[using_berth[i]].pos);
 		//if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
 		//{
 		//	min_dist = dist;
@@ -352,27 +320,46 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 		{
 			min_dist = dist;
 			berthId = using_berth[i];
-			ans_path = tmp_path;
 		}
 
 	}
 	if (berthId == -1)
 		return;
-	if (min_dist > 1000)
-	{
-		return;
-	}
-	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, val / min_dist, ans_path));
+	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, val / min_dist));
 }
 
 void Solver::get_Boat_Berth_match()
 {
-	for (int i = 0; i < boat_num; i++)
+	int berths_using_num = using_berth.size();
+	int length = min(boat_num, berths_using_num);
+	for (int i = 0; i < length; i++)
 	{
-		boats[i].berthId_1 = using_berth[i];
+		boats[i].berthId_1 = berths[using_berth[i]].ID;
 		boats[i].berthId_1_speed = berths[using_berth[i]].speed;
 		boats[i].berthId_1_time = berths[using_berth[i]].time;
 		berths[using_berth[i]].BoatId = i;
+	}
+	if (boat_num > length)
+	{
+		for (int i = length, j = 0; i < boat_num; i++, j++)
+		{
+			j = j % berths_using_num;
+			boats[i].berthId_1 = berths[using_berth[j]].ID;
+			boats[i].berthId_1_speed = berths[using_berth[j]].speed;
+			boats[i].berthId_1_time = berths[using_berth[j]].time;
+			berths[using_berth[j]].BoatId = i;
+		}
+	}
+	if (berths_using_num > length)
+	{
+		for (int i = berths_using_num - 1, j = 0; i >= length; i--, j++)
+		{
+			j = j % boat_num;
+			boats[j].berthId_2 = berths[using_berth[i]].ID;
+			boats[j].berthId_2_time = berths[using_berth[i]].time;
+			boats[j].berthId_2_speed = berths[using_berth[i]].speed;
+			berths[using_berth[i]].BoatId = j;
+		}
 	}
 }
 
@@ -411,7 +398,7 @@ void Solver::check_error()
 				pair<int, int> to_pos;
 				for (int j = 0; j < parts.size(); j++)
 				{
-					if (find(parts[j].begin(), parts[j].end(), robots[using_berth[i]].pos)!= parts[j].end())
+					if (find(parts[j].begin(), parts[j].end(), robots[using_berth[i]].pos) != parts[j].end())
 					{
 						int num = getRandomNumber(0, parts[j].size());
 						to_pos = parts[j][num];
@@ -638,7 +625,7 @@ void Solver::get_berths()
 	vector<vector<int>> berths_all;
 	vector<vector<int>> robots_all;
 	vector<int> del;
-	//删除没有港口的板块，该板块不管
+	//删除没有港口或者没有机器人的板块，该板块不管
 	for (int i = 0; i < parts.size(); i++)
 	{
 		bool if_del = true;
@@ -652,6 +639,25 @@ void Solver::get_berths()
 					if_del = false;
 					break;
 				}
+			}
+			if (!if_del)
+				break;
+		}
+		if (!if_del)//判断机器人
+		{
+			for (int j = 0; j < robot_num; j++)
+			{
+				pair<int, int> pos_tmp = robots[j].pos;
+				for (int k = 0; k < parts[i].size(); k++)
+				{
+					if (parts[i][k].first == pos_tmp.first && parts[i][k].second == pos_tmp.second)
+					{
+						if_del = false;
+						break;
+					}
+				}
+				if (!if_del)
+					break;
 			}
 		}
 		if (if_del)
@@ -680,7 +686,7 @@ void Solver::get_berths()
 		}
 		for (int j = 0; j < robot_num; j++)
 		{
-			pair<int, int> pos_tmp = A_positions[j];
+			pair<int, int> pos_tmp = robots[j].pos;
 			for (int k = 0; k < parts[i].size(); k++)
 			{
 				if (parts[i][k].first == pos_tmp.first && parts[i][k].second == pos_tmp.second)
@@ -693,82 +699,104 @@ void Solver::get_berths()
 		berths_all.push_back(berths_tmp);
 		robots_all.push_back(robots_tmp);
 	}
-	int count = 0;
+
+	////删除不能到的港口
+	//for (int i = 0; i < berths_all.size(); i++)
+	//{
+	//	vector<int> ber_tmp = berths_all[i];
+	//	vector<int> rob_tmp = robots_all[i];
+	//	for (int j = 0; j < ber_tmp.size(); j++)
+	//	{
+	//		int if_has_robot = false;//是否有机器人能到港口
+	//		for (int k = 0; k < rob_tmp.size(); k++)
+	//		{
+	//			vector<int> path_tmp = findShortestPath(ground, berths[ber_tmp[j]].pos, A_positions[rob_tmp[k]]);
+	//			if (path_tmp.size() > 0)
+	//			{
+	//				if_has_robot = true;
+	//				break;
+	//			}
+	//		}
+	//		if (!if_has_robot)
+	//		{
+	//			del.push_back(j);
+	//		}
+	//	}
+	//	removeIndices_for_3(berths_all[i], del);
+	//	del.clear();
+	//	sort(berths_all[i].begin(), berths_all[i].end(), [this](const int& a, const int& b) {
+	//		return tool_get_berths(a, b);
+	//		});
+	//}
+
+	////删除不能到的机器人
+	//for (int i = 0; i < robots_all.size(); i++)
+	//{
+	//	vector<int> ber_tmp = berths_all[i];
+	//	vector<int> rob_tmp = robots_all[i];
+	//	for (int j = 0; j < rob_tmp.size(); j++)
+	//	{
+	//		int if_has_berth = false;//是否有机器人能到港口
+	//		for (int k = 0; k < ber_tmp.size(); k++)
+	//		{
+	//			vector<int> path_tmp = findShortestPath(ground, berths[ber_tmp[j]].pos, A_positions[rob_tmp[k]]);
+	//			if (path_tmp.size() > 0)
+	//			{
+	//				if_has_berth = true;
+	//				break;
+	//			}
+	//		}
+	//		if (!if_has_berth)
+	//		{
+	//			del.push_back(j);
+	//		}
+	//	}
+	//	removeIndices_for_3(robots_all[i], del);
+	//	del.clear();
+	//}
+
 	for (int i = 0; i < berths_all.size(); i++)
 	{
-		vector<int> ber_tmp = berths_all[i];
-		vector<int> rob_tmp = robots_all[i];
-		for (int j = 0; j < ber_tmp.size(); j++)
-		{
-			int if_has_robot = false;//是否有机器人能到港口
-			for (int k = 0; k < rob_tmp.size(); k++)
-			{
-				vector<int> path_tmp = findShortestPath(ground, berths[ber_tmp[j]].pos, A_positions[rob_tmp[k]]);
-				if (path_tmp.size() > 0)
-				{
-					if_has_robot = true;
-					break;
-				}
-			}
-			if (!if_has_robot)
-			{
-				del.push_back(j);
-			}
-		}
-		removeIndices_for_3(berths_all[i], del);
-		del.clear();
 		sort(berths_all[i].begin(), berths_all[i].end(), [this](const int& a, const int& b) {
 			return tool_get_berths(a, b);
 			});
 	}
-	for (int i = 0; i < berths_all.size(); i++)
+
+
+	//机器人和港口匹配
+	for (int i = 0; i < parts.size(); i++)
 	{
-		if (berths_all[i].empty())
+		vector<int> robots_of_i(robots_all[i]);
+		vector<int> berths_of_i(berths_all[i]);
+		int length = min(robots_of_i.size(), berths_of_i.size());
+		for (int j = 0; j < length; j++)
 		{
-			del.push_back(i);
+			int r_id = robots_of_i[j];
+			int b_id = berths_of_i[j];
+			robots[r_id].berth_id = berths[b_id].ID;
+			robots[r_id].berth_pos = getBerthPos(b_id);
+			berths[b_id].RobotIdS.push_back(r_id);
 		}
-	}
-	removeIndices_for_2(berths_all, del);
-	del.clear();
-	vector<int> can_using;
-	for (int i = 0; i < berths_all.size(); i++)
-	{
-		for (int j = 0; j < berths_all[i].size(); j++)
+		if (robots_of_i.size() > length)
 		{
-			can_using.push_back(berths_all[i][j]);
-		}
-	}
-	for (int i = 0; i < berths_all.size(); i++)
-	{
-		using_berth.push_back(berths_all[i][0]);
-		count++;
-	}
-	if (count < 5)
-	{
-		int need = 5 - count;
-		sort(can_using.begin(), can_using.end(), [this](const int& a, const int& b) {
-			return tool_get_berths(a, b);
-			});
-		for (int i = 0; i < can_using.size(); i++)
-		{
-			if (find(using_berth.begin(), using_berth.end(), can_using[i]) != using_berth.end())
+			for (int j = length, k = 0; j < robots_of_i.size(); j++, k++)
 			{
-				del.push_back(i);
+				k = k % length;
+				int r_id = robots_of_i[j];
+				int b_id = berths_of_i[k];
+				robots[r_id].berth_id = berths[b_id].ID;
+				robots[r_id].berth_pos = getBerthPos(b_id);
+				berths[b_id].RobotIdS.push_back(r_id);
 			}
 		}
-		removeIndices_for_3(can_using, del);
-		del.clear();
-		for (int i = 0; i < min(need, (int)can_using.size()); i++)
+	}
+
+	//储存现在的港口
+	for (int i = 0; i < berth_num; i++)
+	{
+		if (!berths[i].RobotIdS.empty())
 		{
-			for (int j = 0; j < can_using.size(); j++)
-			{
-				if (find(using_berth.begin(), using_berth.end(), can_using[j]) == using_berth.end())
-				{
-					using_berth.push_back(can_using[j]);
-					count++;
-					break;
-				}
-			}
+			using_berth.push_back(i);
 		}
 	}
 }

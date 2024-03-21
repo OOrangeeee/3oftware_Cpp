@@ -10,10 +10,9 @@ public:
 	int BerthId;
 	int dist;
 	int price;
-	vector<int> path;
 
 	// 构造函数
-	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price, const vector<int>& path);
+	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price);
 	Good();
 
 	// 重载 < 运算符
@@ -137,13 +136,13 @@ public:
 	int goal;
 	int status;
 	int berthId_1;
-	//int berthId_2;
+	int berthId_2;
 	int berthId_1_num;
-	//int berthId_2_num;
+	int berthId_2_num;
 	int berthId_1_time;
-	//int berthId_2_time;
+	int berthId_2_time;
 	int berthId_1_speed;
-	//int berthId_2_speed;
+	int berthId_2_speed;
 	int counts;
 	int can_have;
 	int id;

@@ -9,4 +9,4 @@ if (!WIN32)
 endif (!WIN32)
 
 AUX_SOURCE_DIRECTORY(. src)
-ADD_EXECUTABLE(main ${src} "parts.cpp" "randomNum.cpp")
+ADD_EXECUTABLE(main ${src} "parts.cpp" "randomNum.cpp" "manhadun.cpp")
