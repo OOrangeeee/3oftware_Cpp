@@ -9,10 +9,10 @@ public:
 	int dietime;
 	int BerthId;
 	int dist;
-	int price;
+	double price;
 
 	// 构造函数
-	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, int price);
+	Good(pair<int, int> pos, int val, int dietime, int BerthId, int dist, double price);
 	Good();
 
 	// 重载 < 运算符

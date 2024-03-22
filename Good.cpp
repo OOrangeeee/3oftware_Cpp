@@ -1,6 +1,6 @@
 #include"classes.h"
 
-Good::Good(pair<int,int> pos,int val,int dietime,int BerthId,int dist,int price)
+Good::Good(pair<int,int> pos,int val,int dietime,int BerthId,int dist,double price)
 {
 	this->pos = pos;
 	this->value = val;

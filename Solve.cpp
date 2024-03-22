@@ -372,7 +372,7 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	}
 	if (berthId == -1)
 		return;
-	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, val / min_dist));
+	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, (double)val / (double)min_dist));
 }
 
 void Solver::get_Boat_Berth_match()
