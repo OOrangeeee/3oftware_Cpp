@@ -157,6 +157,60 @@ public:
 	void go();
 };
 
+class PortFinder {
+private:
+	vector<vector<pair<int, int>>> nearestPort; // 存储最近港口位置
+	vector<vector<int>> distance; // 存储到最近港口的距离
+	int rows, cols;
+	vector<pair<int, int>> directions{ {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+
+public:
+	PortFinder(vector<vector<char>>& map, vector<pair<int, int>>& berths) {
+		rows = map.size();
+		cols = map[0].size();
+		nearestPort.resize(rows, vector<pair<int, int>>(cols, { -1, -1 }));
+		distance.resize(rows, vector<int>(cols, INT_MAX)); // 初始化距离为最大值
+
+		for (const pair<int, int>& berth : berths) {
+			bfs(map, berth);
+		}
+	}
+
+	pair<int, int> findNearestPort(pair<int, int> location) {
+		return nearestPort[location.first][location.second];
+	}
+
+	int findNearestPortDistance(pair<int, int> location) {
+		// 返回指定位置到最近港口的距离
+		return distance[location.first][location.second];
+	}
+
+private:
+	void bfs(vector<vector<char>>& map, const pair<int, int>& berth) {
+		queue<pair<int, int>> q;
+		q.push(berth);
+		distance[berth.first][berth.second] = 0; // 港口位置到自己的距离是0
+
+		while (!q.empty()) {
+			pair<int, int> current = q.front();
+			q.pop();
+			for (const pair<int, int>& dir : directions) {
+				int newR = current.first + dir.first;
+				int newC = current.second + dir.second;
+
+				if (newR >= 0 && newR < rows && newC >= 0 && newC < cols &&
+					(map[newR][newC] == '.' || map[newR][newC] == 'B')) {
+					if (distance[newR][newC] > distance[current.first][current.second] + 1) {
+						distance[newR][newC] = distance[current.first][current.second] + 1;
+						nearestPort[newR][newC] = berth; // 更新最近港口位置
+						q.push(make_pair(newR, newC));
+					}
+				}
+			}
+		}
+	}
+};
+
 
 class Solver
 {
@@ -187,6 +241,7 @@ public:
 	vector<Robot> robots;
 	vector<Berth> berths;
 	vector<Boat> boats;
+	PortFinder* pf;
 
 	//每帧更改
 	int money;

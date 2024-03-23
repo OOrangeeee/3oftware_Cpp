@@ -129,6 +129,12 @@ void Solver::everyInput()
 	{
 		get_berths();
 		get_Boat_Berth_match();
+		vector<pair<int, int>> berths_pos;
+		for (int i = 0; i < using_berth.size(); i++)
+		{
+			berths_pos.push_back(berths[using_berth[i]].pos);
+		}
+		pf = new PortFinder(ground, berths_pos);
 		if_getMatch = true;
 	}
 
@@ -349,27 +355,37 @@ void Solver::getGood(pair<int, int> pos, int die_time, int val)
 	{
 		return;
 	}
+	//for (int i = 0; i < using_berth.size(); i++)
+	//{
+	//	if (berths[using_berth[i]].part != p)
+	//	{
+	//		continue;
+	//	}
+	//	
+	//	//if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
+	//	//{
+	//	//	min_dist = dist;
+	//	//	berthId = using_berth[i];
+	//	//	ans_path = tmp_path;
+	//	//	break;
+	//	//}
+	//	if (dist < min_dist)
+	//	{
+	//		min_dist = dist;
+	//		berthId = using_berth[i];
+	//	}
+
+	//}
+	pair<int, int> berth_pos = pf->findNearestPort(pos);
 	for (int i = 0; i < using_berth.size(); i++)
 	{
-		if (berths[using_berth[i]].part != p)
+		if (berths[using_berth[i]].pos.first == berth_pos.first && berths[using_berth[i]].pos.second == berth_pos.second)
 		{
-			continue;
-		}
-		int dist = manhattanDistance(pos, berths[using_berth[i]].pos);
-		//if (dist <= berths_dist && berths[using_berth[i]].Good_future.size() < tmp_busy)
-		//{
-		//	min_dist = dist;
-		//	berthId = using_berth[i];
-		//	ans_path = tmp_path;
-		//	break;
-		//}
-		if (dist < min_dist)
-		{
-			min_dist = dist;
 			berthId = using_berth[i];
+			break;
 		}
-
 	}
+	min_dist = pf->findNearestPortDistance(pos);
 	if (berthId == -1)
 		return;
 	berths[berthId].Good_future.insert(Good(pos, val, die_time, berthId, min_dist, (double)val / (double)min_dist));
